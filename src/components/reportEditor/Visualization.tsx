@@ -1,159 +1,188 @@
 
-import React from 'react';
-import { BarChart, LineChart, PieChart, AreaChart } from 'recharts';
+import React, { useState } from 'react';
+import { 
+  Bar, BarChart, Line, LineChart, Pie, PieChart, Cell, 
+  ResponsiveContainer, Tooltip as RechartsTooltip, 
+  Legend, CartesianGrid, XAxis, YAxis
+} from 'recharts';
 import { MoreHorizontal, Maximize, X } from 'lucide-react';
-
-const dummyData = [
-  { name: 'Jan', value: 400 },
-  { name: 'Feb', value: 300 },
-  { name: 'Mar', value: 600 },
-  { name: 'Apr', value: 800 },
-  { name: 'May', value: 500 },
-  { name: 'Jun', value: 900 },
-];
 
 interface VisualizationProps {
   type: string;
   title: string;
+  data: any;
+  onDelete?: () => void;
 }
 
-const Visualization = ({ type, title }: VisualizationProps) => {
+const COLORS = ['#6264A7', '#118DFF', '#16C60C', '#F7630C', '#881798', '#FFB900'];
+
+const Visualization = ({ type, title, data, onDelete }: VisualizationProps) => {
+  const [showOptions, setShowOptions] = useState(false);
+  
   return (
-    <div className="flex flex-col h-full">
-      <div className="powerbi-visual-header">
-        <span className="font-medium">{title}</span>
+    <div className="flex flex-col h-full bg-white border rounded shadow-sm">
+      <div className="powerbi-visual-header p-2 flex items-center justify-between border-b">
+        <span className="font-medium text-sm">{title}</span>
         <div className="flex items-center">
-          <button className="p-1 hover:bg-gray-100 rounded-sm">
+          <button 
+            className="p-1 hover:bg-gray-100 rounded-sm"
+            onClick={() => setShowOptions(!showOptions)}
+          >
             <MoreHorizontal size={14} />
           </button>
           <button className="p-1 hover:bg-gray-100 rounded-sm">
             <Maximize size={14} />
           </button>
-          <button className="p-1 hover:bg-gray-100 rounded-sm">
+          <button 
+            className="p-1 hover:bg-gray-100 rounded-sm"
+            onClick={onDelete}
+          >
             <X size={14} />
           </button>
+          
+          {showOptions && (
+            <div className="absolute top-8 right-0 bg-white border shadow-md rounded z-10 py-1 min-w-[120px]">
+              <button className="w-full text-left px-3 py-1 hover:bg-gray-100 text-xs">
+                Edit visual
+              </button>
+              <button className="w-full text-left px-3 py-1 hover:bg-gray-100 text-xs">
+                Duplicate
+              </button>
+              <button className="w-full text-left px-3 py-1 hover:bg-gray-100 text-xs">
+                Export data
+              </button>
+              <button className="w-full text-left px-3 py-1 hover:bg-gray-100 text-xs text-red-500"
+                onClick={onDelete}>
+                Delete
+              </button>
+            </div>
+          )}
         </div>
       </div>
       <div className="flex-1 p-3 overflow-hidden">
-        <VisualizationContent type={type} />
+        <VisualizationContent type={type} data={data} />
       </div>
     </div>
   );
 };
 
-const VisualizationContent = ({ type }: { type: string }) => {
+const VisualizationContent = ({ type, data }: { type: string; data: any }) => {
   switch (type) {
     case 'bar':
-      return <BarChartViz />;
+      return <BarChartViz data={data} />;
     case 'line':
-      return <LineChartViz />;
+      return <LineChartViz data={data} />;
     case 'pie':
-      return <PieChartViz />;
+      return <PieChartViz data={data} />;
     case 'card':
-      return <CardViz />;
+      return <CardViz data={data} />;
     case 'table':
-      return <TableViz />;
+      return <TableViz data={data} />;
     default:
       return <div>No visualization</div>;
   }
 };
 
-const BarChartViz = () => {
+const BarChartViz = ({ data }: { data: any[] }) => {
   return (
-    <div className="w-full h-full flex items-center justify-center bg-[#FCFCFC]">
-      <BarChart width={300} height={200} data={dummyData}>
-        <rect fill="#f5f5f5" width={300} height={200} />
-        {dummyData.map((entry, index) => (
-          <rect
-            key={`bar-${index}`}
-            x={index * 45 + 30}
-            y={200 - entry.value / 5}
-            width={30}
-            height={entry.value / 5}
-            fill="#6264A7"
+    <div className="w-full h-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <XAxis dataKey="name" fontSize={10} />
+          <YAxis fontSize={10} />
+          <RechartsTooltip 
+            formatter={(value: number) => [`${value}`, 'Value']} 
+            labelFormatter={(label) => `Category: ${label}`}
           />
-        ))}
-      </BarChart>
+          <Bar dataKey="value" fill="#6264A7" radius={[4, 4, 0, 0]}>
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
     </div>
   );
 };
 
-const LineChartViz = () => {
+const LineChartViz = ({ data }: { data: any[] }) => {
   return (
-    <div className="w-full h-full flex items-center justify-center bg-[#FCFCFC]">
-      <LineChart width={300} height={200} data={dummyData}>
-        <rect fill="#f5f5f5" width={300} height={200} />
-        <path
-          d={`M30,${200 - dummyData[0].value / 5} ${dummyData.map((entry, index) => `L${index * 45 + 30},${200 - entry.value / 5}`).join(' ')}`}
-          fill="none"
-          stroke="#118DFF"
-          strokeWidth={2}
-        />
-      </LineChart>
+    <div className="w-full h-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart data={data} margin={{ top: 5, right: 20, left: 0, bottom: 5 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+          <XAxis dataKey="name" fontSize={10} />
+          <YAxis fontSize={10} />
+          <RechartsTooltip 
+            formatter={(value: number) => [`${value}`, 'Value']} 
+            labelFormatter={(label) => `Month: ${label}`}
+          />
+          <Line 
+            type="monotone" 
+            dataKey="value" 
+            stroke="#118DFF" 
+            activeDot={{ r: 6 }} 
+            strokeWidth={2} 
+          />
+        </LineChart>
+      </ResponsiveContainer>
     </div>
   );
 };
 
-const PieChartViz = () => {
-  const total = dummyData.reduce((sum, entry) => sum + entry.value, 0);
-  let startAngle = 0;
+const PieChartViz = ({ data }: { data: any[] }) => {
+  return (
+    <div className="w-full h-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={data}
+            cx="50%"
+            cy="50%"
+            labelLine={false}
+            outerRadius="80%"
+            fill="#8884d8"
+            dataKey="value"
+            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+          >
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Pie>
+          <RechartsTooltip 
+            formatter={(value: number) => [`${value}`, 'Value']} 
+            labelFormatter={(name) => `Region: ${name}`}
+          />
+          <Legend />
+        </PieChart>
+      </ResponsiveContainer>
+    </div>
+  );
+};
+
+const CardViz = ({ data }: { data: { value: number; trend: number; comparison: string } }) => {
+  const formattedValue = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(data.value);
   
   return (
-    <div className="w-full h-full flex items-center justify-center bg-[#FCFCFC]">
-      <PieChart width={200} height={200}>
-        <g transform="translate(100, 100)">
-          {dummyData.map((entry, index) => {
-            const percentage = entry.value / total;
-            const angle = percentage * 360;
-            const endAngle = startAngle + angle;
-            
-            const x1 = Math.cos((startAngle - 90) * Math.PI / 180) * 80;
-            const y1 = Math.sin((startAngle - 90) * Math.PI / 180) * 80;
-            const x2 = Math.cos((endAngle - 90) * Math.PI / 180) * 80;
-            const y2 = Math.sin((endAngle - 90) * Math.PI / 180) * 80;
-            
-            const largeArcFlag = angle > 180 ? 1 : 0;
-            
-            const d = `M 0 0 L ${x1} ${y1} A 80 80 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
-            
-            const colors = ['#6264A7', '#118DFF', '#16C60C', '#F7630C', '#881798', '#FFB900'];
-            const fill = colors[index % colors.length];
-            
-            const result = (
-              <path key={index} d={d} fill={fill} />
-            );
-            
-            startAngle += angle;
-            return result;
-          })}
-        </g>
-      </PieChart>
-    </div>
-  );
-};
-
-const CardViz = () => {
-  return (
-    <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-[#FCFCFC]">
-      <div className="text-3xl font-semibold">$1,458,923</div>
-      <div className="text-xs text-green-600 mt-1 flex items-center">
-        <span className="mr-1">▲</span>
-        <span>12.4% vs Last Year</span>
+    <div className="w-full h-full flex flex-col items-center justify-center p-4 bg-white">
+      <div className="text-3xl font-semibold">{formattedValue}</div>
+      <div className={`text-xs ${data.trend >= 0 ? 'text-green-600' : 'text-red-600'} mt-1 flex items-center`}>
+        <span className="mr-1">{data.trend >= 0 ? '▲' : '▼'}</span>
+        <span>{Math.abs(data.trend)}% vs {data.comparison}</span>
       </div>
     </div>
   );
 };
 
-const TableViz = () => {
-  const tableData = [
-    { product: 'Laptop Pro', sales: 1254, growth: 12.5 },
-    { product: 'Smart Watch', sales: 986, growth: 8.3 },
-    { product: 'Wireless Earbuds', sales: 756, growth: 15.7 },
-    { product: 'Tablet Mini', sales: 682, growth: -2.3 },
-  ];
-  
+const TableViz = ({ data }: { data: any[] }) => {
   return (
-    <div className="w-full h-full overflow-auto bg-[#FCFCFC]">
+    <div className="w-full h-full overflow-auto bg-white">
       <table className="min-w-full divide-y divide-gray-200">
         <thead>
           <tr>
@@ -163,8 +192,8 @@ const TableViz = () => {
           </tr>
         </thead>
         <tbody className="bg-white divide-y divide-gray-200">
-          {tableData.map((row, index) => (
-            <tr key={index}>
+          {data.map((row, index) => (
+            <tr key={index} className="hover:bg-gray-50 transition-colors cursor-pointer">
               <td className="px-3 py-2 whitespace-nowrap text-sm">{row.product}</td>
               <td className="px-3 py-2 whitespace-nowrap text-sm text-right">{row.sales.toLocaleString()}</td>
               <td className={`px-3 py-2 whitespace-nowrap text-sm text-right ${row.growth >= 0 ? 'text-green-600' : 'text-red-600'}`}>

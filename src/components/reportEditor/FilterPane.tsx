@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { ChevronDown, Filter, Search, X } from 'lucide-react';
+import { toast } from "@/hooks/use-toast";
 
 const FilterPane = () => {
   const [activeTab, setActiveTab] = useState('filters');
@@ -36,7 +37,21 @@ const FilterPane = () => {
           />
         </FilterSection>
         
-        <FilterSection title="Visual filters" />
+        <FilterSection title="Visual filters">
+          <button 
+            className="w-full text-sm bg-gray-100 hover:bg-gray-200 p-2 rounded text-center mb-2 flex items-center justify-center gap-2"
+            onClick={() => {
+              toast({
+                title: "Add filter",
+                description: "Select a field to create a new filter.",
+                duration: 2000,
+              });
+            }}
+          >
+            <Filter size={14} />
+            Add new filter
+          </button>
+        </FilterSection>
       </div>
     </div>
   );
@@ -86,21 +101,54 @@ interface FilterCardProps {
 
 const FilterCard = ({ name, type, filters, description }: FilterCardProps) => {
   const [expanded, setExpanded] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState<string[]>(filters || []);
+  const [startDate, setStartDate] = useState("2023-01-01");
+  const [endDate, setEndDate] = useState("2023-12-31");
+  
+  const handleCheckboxChange = (filter: string) => {
+    if (selectedFilters.includes(filter)) {
+      setSelectedFilters(selectedFilters.filter(f => f !== filter));
+    } else {
+      setSelectedFilters([...selectedFilters, filter]);
+    }
+  };
+  
+  const handleApply = () => {
+    setExpanded(false);
+    toast({
+      title: "Filter applied",
+      description: `${name} filter has been updated.`,
+      duration: 2000,
+    });
+  };
+  
+  const handleRemove = () => {
+    toast({
+      title: "Filter removed",
+      description: `${name} filter has been removed.`,
+      duration: 2000,
+    });
+  };
   
   return (
-    <div className="powerbi-filter-card">
+    <div className="powerbi-filter-card p-3 bg-gray-50 rounded mb-2">
       <div className="flex items-center justify-between mb-2">
         <div className="font-medium">{name}</div>
         <div className="flex items-center">
           <span className="text-xs text-gray-500 mr-2">{type}</span>
-          <button className="p-1 hover:bg-gray-100 rounded-sm">
+          <button 
+            className="p-1 hover:bg-gray-100 rounded-sm"
+            onClick={() => setExpanded(!expanded)}  
+          >
             <ChevronDown 
               size={14} 
               className={`transition-transform ${expanded ? 'rotate-180' : ''}`} 
-              onClick={() => setExpanded(!expanded)}
             />
           </button>
-          <button className="p-1 hover:bg-gray-100 rounded-sm">
+          <button 
+            className="p-1 hover:bg-gray-100 rounded-sm"
+            onClick={handleRemove}
+          >
             <X size={14} />
           </button>
         </div>
@@ -112,7 +160,7 @@ const FilterCard = ({ name, type, filters, description }: FilterCardProps) => {
       
       {!expanded && filters && (
         <div className="flex flex-wrap gap-1">
-          {filters.map((filter, index) => (
+          {selectedFilters.map((filter, index) => (
             <span key={index} className="px-1.5 py-0.5 bg-gray-100 text-xs rounded">
               {filter}
             </span>
@@ -134,8 +182,16 @@ const FilterCard = ({ name, type, filters, description }: FilterCardProps) => {
               </div>
               {filters && filters.map((filter, index) => (
                 <div key={index} className="flex items-center mb-1">
-                  <input type="checkbox" checked={true} className="mr-2" />
-                  <span className="text-xs">{filter}</span>
+                  <input 
+                    type="checkbox" 
+                    id={`filter-${name}-${filter}`}
+                    checked={selectedFilters.includes(filter)} 
+                    onChange={() => handleCheckboxChange(filter)}
+                    className="mr-2" 
+                  />
+                  <label htmlFor={`filter-${name}-${filter}`} className="text-xs cursor-pointer">
+                    {filter}
+                  </label>
                 </div>
               ))}
             </>
@@ -147,7 +203,8 @@ const FilterCard = ({ name, type, filters, description }: FilterCardProps) => {
                 <label className="text-xs block mb-1">Start date</label>
                 <input 
                   type="date" 
-                  value="2023-01-01"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
                   className="w-full border text-xs p-1 rounded" 
                 />
               </div>
@@ -155,7 +212,8 @@ const FilterCard = ({ name, type, filters, description }: FilterCardProps) => {
                 <label className="text-xs block mb-1">End date</label>
                 <input 
                   type="date" 
-                  value="2023-12-31"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
                   className="w-full border text-xs p-1 rounded" 
                 />
               </div>
@@ -163,7 +221,10 @@ const FilterCard = ({ name, type, filters, description }: FilterCardProps) => {
           )}
           
           <div className="flex justify-end mt-2">
-            <button className="text-xs text-powerbi-primary font-medium hover:underline">
+            <button 
+              className="text-xs text-powerbi-primary font-medium hover:underline"
+              onClick={handleApply}
+            >
               Apply
             </button>
           </div>
