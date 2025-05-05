@@ -1,11 +1,67 @@
-
 import React, { useState } from 'react';
 import Visualization from './Visualization';
 import { Grid2X2, Download, Share, Save, Plus } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 
+// Define more specific types for visualizations
+type VisualizationBase = {
+  id: string;
+  type: string;
+  title: string;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+type BarOrLineVisualization = VisualizationBase & {
+  type: 'bar' | 'line' | 'area';
+  data: { name: string; value: number }[];
+  fields: {
+    axis?: { name: string; type: string; table: string };
+    values?: { name: string; type: string; table: string };
+    legend?: never;
+    columns?: never;
+  };
+}
+
+type PieVisualization = VisualizationBase & {
+  type: 'pie' | 'donut';
+  data: { name: string; value: number }[];
+  fields: {
+    legend?: { name: string; type: string; table: string };
+    values?: { name: string; type: string; table: string };
+    axis?: never;
+    columns?: never;
+  };
+}
+
+type CardVisualization = VisualizationBase & {
+  type: 'card';
+  data: { value: number; trend: number; comparison: string };
+  fields: {
+    values?: { name: string; type: string; table: string };
+    axis?: never;
+    legend?: never;
+    columns?: never;
+  };
+}
+
+type TableVisualization = VisualizationBase & {
+  type: 'table';
+  data: { [key: string]: any }[];
+  fields: {
+    columns?: { name: string; type: string; table: string }[];
+    axis?: never;
+    values?: never;
+    legend?: never;
+  };
+}
+
+type Visualization = BarOrLineVisualization | PieVisualization | CardVisualization | TableVisualization;
+
 const ReportCanvas = () => {
-  const [visualizations, setVisualizations] = useState([
+  const [visualizations, setVisualizations] = useState<Visualization[]>([
     {
       id: 'visual-1',
       type: 'bar',
@@ -183,7 +239,7 @@ const ReportCanvas = () => {
     }
   };
   
-  const createVisualizationFromField = (field: { name: string, type: string, table: string }) => {
+  const createVisualizationFromField = (field: { name: string, type: string, table: string }): Visualization | null => {
     const id = `visual-${Date.now()}`;
     
     // Position the new visualization in an available space
@@ -207,7 +263,8 @@ const ReportCanvas = () => {
             { name: 'Category 4', value: 500 },
           ],
           fields: {
-            values: field
+            values: field,
+            axis: { name: 'Category', type: 'string', table: 'Products' }
           }
         };
       
@@ -226,7 +283,8 @@ const ReportCanvas = () => {
             { name: 'Segment 3', value: 500 },
           ],
           fields: {
-            legend: field
+            legend: field,
+            values: { name: 'Count', type: 'number', table: 'Metrics' }
           }
         };
       
@@ -247,7 +305,8 @@ const ReportCanvas = () => {
             { name: 'May', value: 700 },
           ],
           fields: {
-            axis: field
+            axis: field,
+            values: { name: 'Value', type: 'number', table: 'Metrics' }
           }
         };
       

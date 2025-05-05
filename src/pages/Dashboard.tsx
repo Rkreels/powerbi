@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import MainLayout from '../layouts/MainLayout';
-import { BarChart2, Grid2X2, List, Plus, RefreshCw, Search, Filter, Calendar } from 'lucide-react';
+import { BarChart2, Grid2X2, List, Plus, RefreshCw, Search, Filter, Calendar, MessageSquare } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";

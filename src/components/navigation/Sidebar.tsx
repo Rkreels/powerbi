@@ -1,72 +1,72 @@
 
 import React from 'react';
-import { 
-  LayoutDashboard, 
-  Database, 
-  BarChart2, 
-  Settings, 
-  Users, 
-  HelpCircle, 
-  MessageSquare 
-} from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { BarChart2, Home, FileText, Filter, Settings, Database, LayoutDashboard } from 'lucide-react';
 
 const Sidebar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  const isActive = (path: string) => location.pathname === path;
+  
+  const menuItems = [
+    { icon: Home, label: 'Home', path: '/' },
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
+    { icon: BarChart2, label: 'Reports', path: '/report' },
+    { icon: FileText, label: 'Demo Data', path: '/demo' },
+    { icon: Database, label: 'Datasets', path: '/datasets' },
+    { icon: Filter, label: 'Data Model', path: '/model' },
+    { icon: Settings, label: 'Settings', path: '/settings' },
+  ];
+  
   return (
-    <div className="flex flex-col w-14 bg-powerbi-nav-bg border-r border-gray-700 overflow-hidden transition-all duration-300 hover:w-48 group">
-      <div className="flex flex-col h-full">
-        {/* Microsoft Power BI Logo */}
-        <div className="flex items-center h-14 px-3 border-b border-gray-700">
-          <div className="flex items-center justify-center w-8 h-8 bg-powerbi-primary rounded">
-            <svg viewBox="0 0 24 24" className="w-5 h-5 text-white">
-              <path 
-                fill="currentColor" 
-                d="M8.5,13.5L11,16.5L14.5,12L19,18H5M21,19V5C21,3.89 20.1,3 19,3H5A2,2 0 0,0 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19Z" 
-              />
-            </svg>
+    <div className="bg-powerbi-nav-bg min-h-screen w-56 text-white">
+      <div className="p-4 border-b border-gray-700 mb-4">
+        <div className="flex items-center">
+          <span className="text-lg font-semibold">Power BI Clone</span>
+        </div>
+      </div>
+      
+      <div className="powerbi-scrollbar overflow-y-auto h-[calc(100vh-64px)] pb-20">
+        <div className="px-3 mb-6">
+          <div className="uppercase text-xs font-semibold text-gray-400 tracking-wider ml-3 mb-2">
+            Navigation
           </div>
-          <span className="ml-3 font-semibold text-white opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity duration-300">
-            Power BI
-          </span>
+          <nav>
+            {menuItems.map((item, index) => (
+              <div 
+                key={index}
+                className={`powerbi-nav-item ${isActive(item.path) ? 'active' : ''}`}
+                onClick={() => navigate(item.path)}
+              >
+                <item.icon size={18} className="mr-3" />
+                <span>{item.label}</span>
+              </div>
+            ))}
+          </nav>
         </div>
         
-        {/* Navigation Links */}
-        <nav className="flex flex-col py-2 flex-1 overflow-y-auto powerbi-scrollbar">
-          <NavItem icon={<LayoutDashboard size={18} />} label="Home" active />
-          <NavItem icon={<Database size={18} />} label="Data" />
-          <NavItem icon={<BarChart2 size={18} />} label="Reports" />
-          <NavItem icon={<Users size={18} />} label="Workspaces" />
-        </nav>
-        
-        {/* Bottom Navigation Links */}
-        <div className="mt-auto border-t border-gray-700 py-2">
-          <NavItem icon={<Settings size={18} />} label="Settings" />
-          <NavItem icon={<HelpCircle size={18} />} label="Help" />
-          <NavItem icon={<MessageSquare size={18} />} label="Feedback" />
+        <div className="px-3">
+          <div className="uppercase text-xs font-semibold text-gray-400 tracking-wider ml-3 mb-2">
+            Recent
+          </div>
+          <div className="space-y-1">
+            <div className="powerbi-nav-item">
+              <span className="w-2 h-2 rounded-full bg-green-500 mr-3"></span>
+              <span>Sales Overview</span>
+            </div>
+            <div className="powerbi-nav-item">
+              <span className="w-2 h-2 rounded-full bg-blue-500 mr-3"></span>
+              <span>Marketing Analytics</span>
+            </div>
+            <div className="powerbi-nav-item">
+              <span className="w-2 h-2 rounded-full bg-yellow-500 mr-3"></span>
+              <span>Financial Dashboard</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  );
-};
-
-interface NavItemProps {
-  icon: React.ReactNode;
-  label: string;
-  active?: boolean;
-}
-
-const NavItem = ({ icon, label, active }: NavItemProps) => {
-  return (
-    <a 
-      href="#" 
-      className={`powerbi-nav-item ${active ? 'active' : ''}`}
-    >
-      <span className="w-6 h-6 flex items-center justify-center">
-        {icon}
-      </span>
-      <span className="ml-3 opacity-0 group-hover:opacity-100 whitespace-nowrap transition-opacity duration-300">
-        {label}
-      </span>
-    </a>
   );
 };
 
