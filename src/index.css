@@ -6,47 +6,64 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 0 0% 3.9%;
+
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 0 0% 3.9%;
+
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-    --primary: 239 35% 52%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 240 5.9% 10%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 43 97% 51%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --popover-foreground: 0 0% 3.9%;
+
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
-    --radius: 0.3rem;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+
+    --radius: 0.5rem;
   }
- 
+
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 239 35% 52%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 43 97% 51%;
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+
+    --accent: 0 0% 14.9%;
     --accent-foreground: 0 0% 98%;
+
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
   }
 }
 
@@ -54,81 +71,141 @@
   * {
     @apply border-border;
   }
-  
   body {
     @apply bg-background text-foreground;
-    font-feature-settings: "rlig" 1, "calt" 1;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold;
-  }
-  
-  h1 {
-    @apply text-2xl;
-  }
-  
-  h2 {
-    @apply text-xl;
-  }
-
-  .powerbi-scrollbar::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  
-  .powerbi-scrollbar::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-  
-  .powerbi-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-gray-300 rounded;
-  }
-  
-  .powerbi-scrollbar::-webkit-scrollbar-thumb:hover {
-    @apply bg-gray-400;
   }
 }
 
+/* PowerBI Theme Colors */
+:root {
+  --powerbi-primary: #6264A7;
+  --powerbi-secondary: #82A7FF;
+  --powerbi-nav-bg: #282c34;
+}
+
 /* Power BI specific styles */
-@layer components {
-  .powerbi-nav-item {
-    @apply flex items-center w-full py-2 px-3 text-powerbi-nav-text text-sm hover:bg-black/20 rounded transition-colors;
+.powerbi-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.powerbi-scrollbar::-webkit-scrollbar-track {
+  background-color: transparent;
+}
+
+.powerbi-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #d4d4d8;
+  border-radius: 3px;
+}
+
+.powerbi-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #a1a1aa;
+}
+
+.powerbi-nav-item {
+  @apply flex items-center w-full px-3 py-2 text-gray-300 hover:bg-gray-700 cursor-pointer transition-colors;
+}
+
+.powerbi-nav-item.active {
+  @apply bg-gray-700 text-white;
+}
+
+.powerbi-pane-header {
+  @apply flex justify-between items-center h-10 px-3 border-b border-gray-200 bg-gray-50;
+}
+
+.powerbi-tab-button {
+  @apply px-3 py-1.5 text-sm font-medium text-gray-500 hover:text-gray-700 border-b-2 border-transparent;
+}
+
+.powerbi-tab-button.active {
+  @apply text-powerbi-primary border-powerbi-primary;
+}
+
+.powerbi-visual {
+  @apply bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden;
+  transition: all 0.2s ease-in-out;
+}
+
+.powerbi-visual:hover {
+  @apply shadow-md;
+}
+
+.powerbi-visual-header {
+  @apply flex items-center justify-between;
+  user-select: none;
+}
+
+.powerbi-field-item {
+  user-select: none;
+}
+
+.bg-powerbi-primary {
+  background-color: var(--powerbi-primary);
+}
+
+.bg-powerbi-secondary {
+  background-color: var(--powerbi-secondary);
+}
+
+.bg-powerbi-nav-bg {
+  background-color: var(--powerbi-nav-bg);
+}
+
+.text-powerbi-primary {
+  color: var(--powerbi-primary);
+}
+
+.ring-powerbi-primary {
+  --tw-ring-color: var(--powerbi-primary);
+}
+
+.border-powerbi-primary {
+  border-color: var(--powerbi-primary);
+}
+
+/* Animation for the drag operation */
+.drag-animation {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
   }
-  
-  .powerbi-nav-item.active {
-    @apply bg-black/30;
+  50% {
+    opacity: 0.6;
   }
-  
-  .powerbi-pane-header {
-    @apply flex items-center justify-between h-9 px-3 bg-gray-100 border-b text-sm font-medium;
+}
+
+/* Interactive tooltips */
+.powerbi-tooltip {
+  @apply absolute z-50 bg-gray-800 text-white text-xs rounded py-1 px-2 shadow-lg;
+  max-width: 200px;
+}
+
+/* Interactive filter cards */
+.powerbi-filter-card {
+  transition: all 0.2s ease;
+}
+
+.powerbi-filter-card:hover {
+  @apply shadow-sm;
+}
+
+/* Visualization highlight effect on selection */
+.powerbi-visual-highlight {
+  animation: highlightPulse 1s;
+}
+
+@keyframes highlightPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(98, 100, 167, 0.4);
   }
-  
-  .powerbi-visual {
-    @apply border rounded shadow-sm bg-white overflow-hidden;
+  70% {
+    box-shadow: 0 0 0 5px rgba(98, 100, 167, 0);
   }
-  
-  .powerbi-visual-header {
-    @apply flex items-center justify-between h-8 px-2 bg-white border-b text-sm;
-  }
-  
-  .powerbi-field-item {
-    @apply flex items-center gap-2 p-2 text-sm border rounded-sm mb-1 bg-white cursor-grab;
-  }
-  
-  .powerbi-drag-handle {
-    @apply cursor-grab;
-  }
-  
-  .powerbi-filter-card {
-    @apply p-3 border rounded-md mb-2 text-sm bg-white;
-  }
-  
-  .powerbi-tab-button {
-    @apply px-4 py-1.5 text-sm font-medium border-b-2 border-transparent hover:border-gray-300 transition-colors;
-  }
-  
-  .powerbi-tab-button.active {
-    @apply border-powerbi-primary text-powerbi-primary;
+  100% {
+    box-shadow: 0 0 0 0 rgba(98, 100, 167, 0);
   }
 }

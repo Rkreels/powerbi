@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import Visualization from './Visualization';
-import { Grid2X2, Download, Share, Save } from 'lucide-react';
+import { Grid2X2, Download, Share, Save, Plus } from 'lucide-react';
 import { toast } from "@/hooks/use-toast";
 
 const ReportCanvas = () => {
@@ -19,7 +19,11 @@ const ReportCanvas = () => {
         { name: 'Furniture', value: 300 },
         { name: 'Office Supplies', value: 600 },
         { name: 'Accessories', value: 800 },
-      ]
+      ],
+      fields: {
+        axis: { name: 'Category', type: 'string', table: 'Products' },
+        values: { name: 'Revenue', type: 'currency', table: 'Sales' }
+      }
     },
     {
       id: 'visual-2',
@@ -36,7 +40,11 @@ const ReportCanvas = () => {
         { name: 'Apr', value: 800 },
         { name: 'May', value: 500 },
         { name: 'Jun', value: 900 },
-      ]
+      ],
+      fields: {
+        axis: { name: 'Date', type: 'date', table: 'Sales' },
+        values: { name: 'Revenue', type: 'currency', table: 'Sales' }
+      }
     },
     {
       id: 'visual-3',
@@ -51,7 +59,11 @@ const ReportCanvas = () => {
         { name: 'South', value: 300 },
         { name: 'East', value: 500 },
         { name: 'West', value: 600 },
-      ]
+      ],
+      fields: {
+        legend: { name: 'Region', type: 'string', table: 'Geography' },
+        values: { name: 'Revenue', type: 'currency', table: 'Sales' }
+      }
     },
     {
       id: 'visual-4',
@@ -61,7 +73,10 @@ const ReportCanvas = () => {
       y: 4,
       width: 4,
       height: 2,
-      data: { value: 1458923, trend: 12.4, comparison: 'Last Year' }
+      data: { value: 1458923, trend: 12.4, comparison: 'Last Year' },
+      fields: {
+        values: { name: 'Revenue', type: 'currency', table: 'Sales' }
+      }
     },
     {
       id: 'visual-5',
@@ -76,23 +91,37 @@ const ReportCanvas = () => {
         { product: 'Smart Watch', sales: 986, growth: 8.3 },
         { product: 'Wireless Earbuds', sales: 756, growth: 15.7 },
         { product: 'Tablet Mini', sales: 682, growth: -2.3 },
-      ]
+      ],
+      fields: {
+        columns: [
+          { name: 'Product Name', type: 'string', table: 'Products' },
+          { name: 'Quantity', type: 'number', table: 'Sales' },
+          { name: 'Revenue', type: 'currency', table: 'Sales' }
+        ]
+      }
     }
   ]);
 
   const [selectedVisual, setSelectedVisual] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState('edit'); // 'edit' or 'reading'
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   const handleVisualizationSelect = (id: string) => {
-    setSelectedVisual(id);
-    toast({
-      title: "Visualization selected",
-      description: `You've selected the ${visualizations.find(v => v.id === id)?.title} visualization.`,
-      duration: 2000,
-    });
+    if (viewMode === 'edit') {
+      setSelectedVisual(id);
+      toast({
+        title: "Visualization selected",
+        description: `You've selected the ${visualizations.find(v => v.id === id)?.title} visualization.`,
+        duration: 2000,
+      });
+    }
   };
 
   const handleVisualizationDelete = (id: string) => {
     setVisualizations(visualizations.filter(viz => viz.id !== id));
+    if (selectedVisual === id) {
+      setSelectedVisual(null);
+    }
     toast({
       title: "Visualization removed",
       description: "The visualization has been removed from the report.",
@@ -121,6 +150,123 @@ const ReportCanvas = () => {
       title: "Download started",
       description: "Your report is being downloaded as PDF.",
       duration: 2000,
+    });
+  };
+  
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingOver(true);
+  };
+  
+  const handleDragLeave = () => {
+    setIsDraggingOver(false);
+  };
+  
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDraggingOver(false);
+    
+    try {
+      const fieldData = JSON.parse(e.dataTransfer.getData('field'));
+      // Add new visualization based on field type
+      const newVisualization = createVisualizationFromField(fieldData);
+      if (newVisualization) {
+        setVisualizations([...visualizations, newVisualization]);
+        toast({
+          title: "Visualization created",
+          description: `A new ${newVisualization.type} visualization has been created with ${fieldData.name}.`,
+          duration: 2000,
+        });
+      }
+    } catch (error) {
+      console.error("Error creating visualization from dropped field:", error);
+    }
+  };
+  
+  const createVisualizationFromField = (field: { name: string, type: string, table: string }) => {
+    const id = `visual-${Date.now()}`;
+    
+    // Position the new visualization in an available space
+    const positions = calculateAvailablePosition();
+    
+    switch (field.type) {
+      case 'currency':
+      case 'number':
+        return {
+          id,
+          type: 'bar',
+          title: `${field.name} by Category`,
+          x: positions.x,
+          y: positions.y,
+          width: 6,
+          height: 4,
+          data: [
+            { name: 'Category 1', value: 400 },
+            { name: 'Category 2', value: 300 },
+            { name: 'Category 3', value: 600 },
+            { name: 'Category 4', value: 500 },
+          ],
+          fields: {
+            values: field
+          }
+        };
+      
+      case 'string':
+        return {
+          id,
+          type: 'pie',
+          title: `Distribution by ${field.name}`,
+          x: positions.x,
+          y: positions.y,
+          width: 4,
+          height: 4,
+          data: [
+            { name: 'Segment 1', value: 400 },
+            { name: 'Segment 2', value: 300 },
+            { name: 'Segment 3', value: 500 },
+          ],
+          fields: {
+            legend: field
+          }
+        };
+      
+      case 'date':
+        return {
+          id,
+          type: 'line',
+          title: `Trend Over ${field.name}`,
+          x: positions.x,
+          y: positions.y,
+          width: 6,
+          height: 4,
+          data: [
+            { name: 'Jan', value: 400 },
+            { name: 'Feb', value: 300 },
+            { name: 'Mar', value: 600 },
+            { name: 'Apr', value: 500 },
+            { name: 'May', value: 700 },
+          ],
+          fields: {
+            axis: field
+          }
+        };
+      
+      default:
+        return null;
+    }
+  };
+  
+  const calculateAvailablePosition = () => {
+    // Simple logic to place new visualization in next available row
+    const maxY = Math.max(...visualizations.map(v => v.y + v.height), 0);
+    return { x: 0, y: maxY };
+  };
+  
+  const handleAddVisualization = () => {
+    toast({
+      title: "Add Visualization",
+      description: "Please drag a field from the Data pane or select a visualization type from the Visualization pane.",
+      duration: 3000,
     });
   };
 
@@ -155,15 +301,23 @@ const ReportCanvas = () => {
           <button className="p-1.5 hover:bg-gray-200 rounded text-gray-600">
             <Grid2X2 size={18} />
           </button>
-          <select className="text-sm border rounded p-1 bg-white">
-            <option>View</option>
-            <option>Reading View</option>
-            <option>Editing View</option>
+          <select 
+            className="text-sm border rounded p-1 bg-white"
+            value={viewMode}
+            onChange={(e) => setViewMode(e.target.value)}
+          >
+            <option value="edit">Editing View</option>
+            <option value="reading">Reading View</option>
           </select>
         </div>
       </div>
 
-      <div className="grid grid-cols-12 gap-4 auto-rows-[100px]">
+      <div 
+        className={`grid grid-cols-12 gap-4 auto-rows-[100px] min-h-[600px] ${isDraggingOver ? 'bg-blue-50 border-2 border-dashed border-powerbi-primary' : ''}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+      >
         {visualizations.map((viz) => (
           <div 
             key={viz.id}
@@ -178,10 +332,21 @@ const ReportCanvas = () => {
               type={viz.type} 
               title={viz.title} 
               data={viz.data}
+              isEditable={viewMode === 'edit'}
               onDelete={() => handleVisualizationDelete(viz.id)}
             />
           </div>
         ))}
+        
+        {viewMode === 'edit' && visualizations.length < 8 && (
+          <div 
+            className="col-span-4 row-span-2 border-2 border-dashed rounded-lg flex flex-col items-center justify-center text-gray-400 hover:bg-gray-100 cursor-pointer"
+            onClick={handleAddVisualization}
+          >
+            <Plus size={24} />
+            <span className="mt-2 text-sm">Add Visualization</span>
+          </div>
+        )}
       </div>
     </div>
   );
