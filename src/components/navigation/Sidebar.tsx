@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { BarChart2, Home, FileText, Filter, Settings, Database, LayoutDashboard } from 'lucide-react';
+import { BarChart2, Home, FileText, Filter, Settings, Database, LayoutDashboard, BookOpen } from 'lucide-react';
 
 const Sidebar = () => {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ const Sidebar = () => {
     { icon: Home, label: 'Home', path: '/' },
     { icon: LayoutDashboard, label: 'Dashboard', path: '/' },
     { icon: BarChart2, label: 'Reports', path: '/report' },
-    { icon: FileText, label: 'Demo Data', path: '/demo' },
+    { icon: BookOpen, label: 'Demo Data', path: '/demo' },
     { icon: Database, label: 'Datasets', path: '/datasets' },
     { icon: Filter, label: 'Data Model', path: '/model' },
     { icon: Settings, label: 'Settings', path: '/settings' },
