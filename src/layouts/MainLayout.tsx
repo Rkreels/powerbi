@@ -1,7 +1,8 @@
 
 import React from 'react';
-import Sidebar from '../components/navigation/Sidebar';
+import ModernSidebar from '../components/navigation/ModernSidebar';
 import TopNavbar from '../components/navigation/TopNavbar';
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -9,15 +10,20 @@ interface MainLayoutProps {
 
 const MainLayout = ({ children }: MainLayoutProps) => {
   return (
-    <div className="flex h-screen overflow-hidden bg-gray-50">
-      <Sidebar />
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <TopNavbar />
-        <div className="flex flex-1 overflow-hidden">
-          {children}
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <ModernSidebar />
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex items-center h-12 bg-white border-b border-gray-200 px-4">
+            <SidebarTrigger className="mr-2" />
+            <TopNavbar />
+          </div>
+          <div className="flex flex-1 overflow-hidden">
+            {children}
+          </div>
         </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

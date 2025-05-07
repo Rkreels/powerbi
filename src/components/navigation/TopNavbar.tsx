@@ -7,7 +7,7 @@ const TopNavbar = () => {
   const navigate = useNavigate();
   
   return (
-    <div className="flex h-12 bg-white border-b border-gray-200 px-4 items-center justify-between">
+    <div className="flex flex-1 items-center justify-between">
       {/* Left side */}
       <div className="flex items-center">
         <h1 className="text-lg font-semibold mr-4">My workspace</h1>

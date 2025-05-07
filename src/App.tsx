@@ -12,6 +12,7 @@ import Settings from "./pages/Settings";
 import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
+import MainLayout from "./layouts/MainLayout";
 
 const queryClient = new QueryClient();
 
@@ -23,12 +24,12 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/report" element={<ReportEditor />} />
-          <Route path="/datasets" element={<Datasets />} />
-          <Route path="/model" element={<DataModel />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/demo" element={<Demo />} />
+          <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
+          <Route path="/report" element={<MainLayout><ReportEditor /></MainLayout>} />
+          <Route path="/datasets" element={<MainLayout><Datasets /></MainLayout>} />
+          <Route path="/model" element={<MainLayout><DataModel /></MainLayout>} />
+          <Route path="/settings" element={<MainLayout><Settings /></MainLayout>} />
+          <Route path="/demo" element={<MainLayout><Demo /></MainLayout>} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
