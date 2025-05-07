@@ -1,8 +1,11 @@
 
 import React from 'react';
-import { Search, ChevronDown, Bell, User, Plus } from 'lucide-react';
+import { Search, ChevronDown, Bell, User, Plus, Download, Settings } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const TopNavbar = () => {
+  const navigate = useNavigate();
+  
   return (
     <div className="flex h-12 bg-white border-b border-gray-200 px-4 items-center justify-between">
       {/* Left side */}
@@ -28,7 +31,10 @@ const TopNavbar = () => {
       
       {/* Right side */}
       <div className="flex items-center space-x-3">
-        <button className="flex items-center bg-powerbi-primary text-white text-sm rounded py-1.5 px-3 hover:bg-powerbi-primary/90">
+        <button 
+          className="flex items-center bg-powerbi-primary text-white text-sm rounded py-1.5 px-3 hover:bg-powerbi-primary/90"
+          onClick={() => navigate('/report')}
+        >
           <Plus size={16} className="mr-1.5" />
           <span>New</span>
         </button>
@@ -36,7 +42,13 @@ const TopNavbar = () => {
           <Bell size={18} />
         </button>
         <button className="p-1.5 hover:bg-gray-100 rounded-full">
-          <User size={18} />
+          <Download size={18} />
+        </button>
+        <button className="p-1.5 hover:bg-gray-100 rounded-full">
+          <Settings size={18} />
+        </button>
+        <button className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-gray-700">
+          <User size={16} />
         </button>
       </div>
     </div>

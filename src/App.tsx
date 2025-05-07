@@ -11,6 +11,7 @@ import DataModel from "./pages/DataModel";
 import Settings from "./pages/Settings";
 import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
+import Home from "./pages/Home";
 
 const queryClient = new QueryClient();
 
@@ -21,7 +22,8 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/report" element={<ReportEditor />} />
           <Route path="/datasets" element={<Datasets />} />
           <Route path="/model" element={<DataModel />} />

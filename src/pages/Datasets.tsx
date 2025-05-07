@@ -1,20 +1,81 @@
 
 import React, { useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
+import { Search, Plus, Filter, Download, Upload, Clock, Database, Calendar, RefreshCw, MoreHorizontal } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Plus, Database, Upload, RefreshCw, Filter, Search, MoreHorizontal, FileSpreadsheet, Table } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Datasets = () => {
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [datasetsView, setDatasetsView] = useState<'grid' | 'list'>('grid');
+  const [selectedDatasets, setSelectedDatasets] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
-  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
-  const [isImportDialogOpen, setIsImportDialogOpen] = useState(false);
-  const [selectedDataSource, setSelectedDataSource] = useState('excel');
-  const [fileName, setFileName] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [activeView, setActiveView] = useState('all');
+
+  const datasets = [
+    {
+      id: 'ds-1',
+      name: 'Sales Data',
+      lastRefreshed: '1 hour ago',
+      size: '4.2 MB',
+      owner: 'John Smith',
+      created: 'Jan 15, 2025',
+      tables: 5,
+      status: 'online',
+      type: 'Import'
+    },
+    {
+      id: 'ds-2',
+      name: 'Marketing Analytics',
+      lastRefreshed: '2 days ago',
+      size: '1.8 MB',
+      owner: 'Maria Chen',
+      created: 'Mar 20, 2025',
+      tables: 3,
+      status: 'online',
+      type: 'DirectQuery'
+    },
+    {
+      id: 'ds-3',
+      name: 'Financial Dashboard Data',
+      lastRefreshed: 'Yesterday',
+      size: '6.5 MB',
+      owner: 'John Smith',
+      created: 'Apr 5, 2025',
+      tables: 8,
+      status: 'online',
+      type: 'Import'
+    },
+    {
+      id: 'ds-4',
+      name: 'Customer Insights',
+      lastRefreshed: '3 days ago',
+      size: '2.3 MB',
+      owner: 'Robert Johnson',
+      created: 'Mar 12, 2025',
+      tables: 4,
+      status: 'online',
+      type: 'Composite'
+    },
+    {
+      id: 'ds-5',
+      name: 'HR Analytics',
+      lastRefreshed: '5 hours ago',
+      size: '1.1 MB',
+      owner: 'Sarah Miller',
+      created: 'Apr 18, 2025',
+      tables: 2,
+      status: 'scheduled',
+      type: 'Import'
+    }
+  ];
+
+  const filteredDatasets = datasets.filter(dataset => 
+    dataset.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    dataset.owner.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -30,76 +91,30 @@ const Datasets = () => {
     }, 1000);
   };
 
-  const handleUpload = () => {
-    setIsUploadDialogOpen(false);
+  const handleCreateDataset = () => {
+    setIsCreateDialogOpen(false);
     toast({
-      title: "File uploaded",
-      description: "Your file is being processed.",
-      duration: 2000,
+      title: "Dataset created",
+      description: "Your new dataset has been created successfully.",
+      duration: 3000,
     });
   };
 
-  const handleImport = () => {
-    setIsImportDialogOpen(false);
-    toast({
-      title: "Data source connected",
-      description: `Your ${selectedDataSource} data source is now connected.`,
-      duration: 2000,
-    });
+  const toggleSelectDataset = (id: string) => {
+    setSelectedDatasets(prev => 
+      prev.includes(id) 
+        ? prev.filter(datasetId => datasetId !== id) 
+        : [...prev, id]
+    );
   };
 
-  const datasets = [
-    { 
-      name: "Sales Data", 
-      type: "Excel", 
-      tables: 4, 
-      size: "2.4 MB", 
-      lastRefresh: "1 hour ago",
-      owner: "You"
-    },
-    { 
-      name: "Marketing Analytics", 
-      type: "CSV", 
-      tables: 2, 
-      size: "1.7 MB", 
-      lastRefresh: "Today",
-      owner: "Maria Chen"
-    },
-    { 
-      name: "Customer Database", 
-      type: "SQL", 
-      tables: 7, 
-      size: "5.8 MB", 
-      lastRefresh: "Yesterday",
-      owner: "You"
-    },
-    { 
-      name: "Inventory Management", 
-      type: "JSON", 
-      tables: 3, 
-      size: "3.2 MB", 
-      lastRefresh: "3 days ago",
-      owner: "John Smith"
-    },
-    { 
-      name: "Financial Reports", 
-      type: "Excel", 
-      tables: 6, 
-      size: "4.5 MB", 
-      lastRefresh: "1 week ago",
-      owner: "You"
+  const selectAllDatasets = () => {
+    if (selectedDatasets.length === datasets.length) {
+      setSelectedDatasets([]);
+    } else {
+      setSelectedDatasets(datasets.map(ds => ds.id));
     }
-  ].filter(dataset => {
-    if (searchQuery && !dataset.name.toLowerCase().includes(searchQuery.toLowerCase())) {
-      return false;
-    }
-    
-    if (activeView === 'my' && dataset.owner !== 'You') {
-      return false;
-    }
-    
-    return true;
-  });
+  };
 
   return (
     <MainLayout>
@@ -108,7 +123,7 @@ const Datasets = () => {
           <div>
             <h1 className="text-2xl font-semibold mb-2">Datasets</h1>
             <div className="flex items-center">
-              <span className="text-sm text-gray-500">Manage your data sources</span>
+              <span className="text-sm text-gray-500">{datasets.length} datasets available</span>
               <button 
                 className={`ml-2 p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded flex items-center ${isRefreshing ? 'animate-spin' : ''}`}
                 onClick={handleRefresh}
@@ -130,221 +145,211 @@ const Datasets = () => {
                 className="pl-8 pr-4 py-2 border rounded-md w-64 focus:outline-none focus:ring-1 focus:ring-powerbi-primary"
               />
             </div>
-            <Button onClick={() => setIsUploadDialogOpen(true)}>
-              <Upload size={16} className="mr-1" />
-              Upload
-            </Button>
-            <Button onClick={() => setIsImportDialogOpen(true)}>
+            <Button onClick={() => setIsCreateDialogOpen(true)}>
               <Plus size={16} className="mr-1" />
-              Connect data
+              Get Data
             </Button>
           </div>
         </div>
         
-        <Tabs defaultValue="all" className="mb-6" onValueChange={setActiveView}>
-          <TabsList>
-            <TabsTrigger value="all">All datasets</TabsTrigger>
-            <TabsTrigger value="my">My datasets</TabsTrigger>
-            <TabsTrigger value="shared">Shared with me</TabsTrigger>
-          </TabsList>
-        </Tabs>
-        
-        <div className="bg-white border rounded-md overflow-hidden">
-          <table className="w-full">
-            <thead className="bg-gray-50 text-left">
-              <tr>
-                <th className="px-4 py-3 text-sm font-medium text-gray-500">Name</th>
-                <th className="px-4 py-3 text-sm font-medium text-gray-500">Type</th>
-                <th className="px-4 py-3 text-sm font-medium text-gray-500">Tables</th>
-                <th className="px-4 py-3 text-sm font-medium text-gray-500">Size</th>
-                <th className="px-4 py-3 text-sm font-medium text-gray-500">Last refresh</th>
-                <th className="px-4 py-3 text-sm font-medium text-gray-500">Owner</th>
-                <th className="px-4 py-3 text-sm font-medium text-gray-500"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {datasets.map((dataset, index) => (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-4 py-3">
-                    <div className="flex items-center">
-                      <span className="mr-2">
-                        {dataset.type === 'Excel' || dataset.type === 'CSV' ? 
-                          <FileSpreadsheet size={18} className="text-green-600" /> : 
-                          <Database size={18} className="text-blue-600" />
-                        }
-                      </span>
-                      <span className="font-medium">{dataset.name}</span>
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{dataset.type}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{dataset.tables}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{dataset.size}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{dataset.lastRefresh}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{dataset.owner}</td>
-                  <td className="px-4 py-3 text-sm">
-                    <button className="p-1 hover:bg-gray-100 rounded">
-                      <MoreHorizontal size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              
-              {datasets.length === 0 && (
-                <tr>
-                  <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
-                    No datasets found. Try uploading a new dataset or connecting to a data source.
-                  </td>
-                </tr>
+        <div className="bg-white rounded-lg border shadow-sm mb-6">
+          <div className="flex items-center justify-between p-4 border-b">
+            <div className="flex items-center space-x-2">
+              <button 
+                className={`p-1.5 rounded ${datasetsView === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-100'}`}
+                onClick={() => setDatasetsView('grid')}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                  <rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                  <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                  <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                </svg>
+              </button>
+              <button
+                className={`p-1.5 rounded ${datasetsView === 'list' ? 'bg-gray-100' : 'hover:bg-gray-100'}`}
+                onClick={() => setDatasetsView('list')}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="1" y="2" width="14" height="2" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                  <rect x="1" y="7" width="14" height="2" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                  <rect x="1" y="12" width="14" height="2" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                </svg>
+              </button>
+              <Button variant="outline" size="sm" className="ml-2">
+                <Filter size={14} className="mr-1" />
+                Filter
+              </Button>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              {selectedDatasets.length > 0 && (
+                <span className="text-sm text-gray-500">{selectedDatasets.length} selected</span>
               )}
-            </tbody>
-          </table>
+              <Button variant="outline" size="sm" disabled={selectedDatasets.length === 0}>
+                <RefreshCw size={14} className="mr-1" />
+                Refresh
+              </Button>
+              <Button variant="outline" size="sm" disabled={selectedDatasets.length === 0}>
+                <Download size={14} className="mr-1" />
+                Export
+              </Button>
+              <button className="p-1.5 rounded hover:bg-gray-100">
+                <MoreHorizontal size={16} />
+              </button>
+            </div>
+          </div>
+          
+          <div className="p-4">
+            {datasetsView === 'list' ? (
+              <div className="border rounded-md overflow-hidden">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8">
+                        <Checkbox 
+                          checked={selectedDatasets.length === datasets.length && datasets.length > 0} 
+                          onCheckedChange={selectAllDatasets} 
+                        />
+                      </th>
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Refreshed</th>
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tables</th>
+                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredDatasets.map((dataset) => (
+                      <tr key={dataset.id} className="hover:bg-gray-50">
+                        <td className="px-3 py-4 whitespace-nowrap">
+                          <Checkbox 
+                            checked={selectedDatasets.includes(dataset.id)} 
+                            onCheckedChange={() => toggleSelectDataset(dataset.id)} 
+                          />
+                        </td>
+                        <td className="px-3 py-4 whitespace-nowrap">
+                          <div className="flex items-center">
+                            <Database size={16} className="mr-2 text-powerbi-primary" />
+                            <div className="text-sm font-medium text-gray-900">{dataset.name}</div>
+                          </div>
+                        </td>
+                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{dataset.owner}</td>
+                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{dataset.type}</td>
+                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{dataset.lastRefreshed}</td>
+                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{dataset.tables}</td>
+                        <td className="px-3 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            dataset.status === 'online' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {dataset.status}
+                          </span>
+                        </td>
+                        <td className="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button className="text-powerbi-primary hover:text-powerbi-secondary px-2">Edit</button>
+                          <button className="text-powerbi-primary hover:text-powerbi-secondary px-2">Open</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredDatasets.map((dataset) => (
+                  <div 
+                    key={dataset.id} 
+                    className="border rounded-lg p-4 hover:shadow-md cursor-pointer relative"
+                    onClick={() => toggleSelectDataset(dataset.id)}
+                  >
+                    <div className="absolute top-4 left-4">
+                      <Checkbox 
+                        checked={selectedDatasets.includes(dataset.id)}
+                        className="pointer-events-none" 
+                      />
+                    </div>
+                    <div className="flex items-center mb-3 pl-8">
+                      <Database size={18} className="mr-2 text-powerbi-primary" />
+                      <h3 className="font-medium truncate">{dataset.name}</h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-y-2 text-sm text-gray-600">
+                      <div>Owner:</div>
+                      <div>{dataset.owner}</div>
+                      <div>Created:</div>
+                      <div>{dataset.created}</div>
+                      <div>Size:</div>
+                      <div>{dataset.size}</div>
+                      <div>Type:</div>
+                      <div>{dataset.type}</div>
+                    </div>
+                    <div className="mt-3 pt-3 border-t flex justify-between items-center">
+                      <div className="flex items-center text-xs text-gray-500">
+                        <Clock size={12} className="mr-1" />
+                        <span>Last refreshed {dataset.lastRefreshed}</span>
+                      </div>
+                      <button className="p-1 hover:bg-gray-100 rounded">
+                        <MoreHorizontal size={14} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
       
-      {/* Upload Dialog */}
-      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Upload dataset</DialogTitle>
+            <DialogTitle>Connect to data</DialogTitle>
           </DialogHeader>
-          <div className="py-4">
-            <div className="border-2 border-dashed rounded-md p-6 text-center">
-              <div className="mx-auto w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                <Upload size={24} className="text-gray-500" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+            <div className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
+              <div className="w-12 h-12 mb-3 rounded-full bg-powerbi-primary text-white flex items-center justify-center">
+                <Database size={24} />
               </div>
-              <p className="text-sm text-gray-600 mb-2">Drag and drop your file here or click to browse</p>
-              <p className="text-xs text-gray-500 mb-4">Supported formats: Excel, CSV, JSON, XML</p>
-              <Button size="sm" onClick={() => {
-                setFileName('sales_data_2023.xlsx');
-                toast({
-                  title: "File selected",
-                  description: "sales_data_2023.xlsx is ready to upload.",
-                  duration: 2000,
-                });
-              }}>
-                Browse files
-              </Button>
-              
-              {fileName && (
-                <div className="mt-4 bg-gray-50 p-2 rounded flex items-center justify-between">
-                  <div className="flex items-center">
-                    <FileSpreadsheet size={16} className="text-green-600 mr-2" />
-                    <span className="text-sm">{fileName}</span>
-                  </div>
-                  <button 
-                    className="text-gray-500 hover:text-gray-700"
-                    onClick={() => setFileName('')}
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              )}
+              <h3 className="font-medium mb-2">Files</h3>
+              <p className="text-sm text-gray-500">Excel, CSV, XML, Text, and more</p>
+            </div>
+            <div className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
+              <div className="w-12 h-12 mb-3 rounded-full bg-blue-500 text-white flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor"/>
+                  <path d="M2 17L12 22L22 17V7L12 2L2 7V17Z" fill="currentColor"/>
+                </svg>
+              </div>
+              <h3 className="font-medium mb-2">Azure</h3>
+              <p className="text-sm text-gray-500">SQL Database, Synapse Analytics, and more</p>
+            </div>
+            <div className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
+              <div className="w-12 h-12 mb-3 rounded-full bg-green-500 text-white flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor"/>
+                  <path d="M7 8H17M7 12H17M7 16H13" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </div>
+              <h3 className="font-medium mb-2">Database</h3>
+              <p className="text-sm text-gray-500">SQL Server, Oracle, MySQL, and more</p>
+            </div>
+            <div className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
+              <div className="w-12 h-12 mb-3 rounded-full bg-purple-500 text-white flex items-center justify-center">
+                <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="12" r="10" fill="currentColor"/>
+                  <path d="M8 12H16M12 8V16" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </div>
+              <h3 className="font-medium mb-2">Online Services</h3>
+              <p className="text-sm text-gray-500">SharePoint, Google Analytics, and more</p>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)}>
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleUpload} disabled={!fileName}>
-              Upload
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Import Dialog */}
-      <Dialog open={isImportDialogOpen} onOpenChange={setIsImportDialogOpen}>
-        <DialogContent className="max-w-xl">
-          <DialogHeader>
-            <DialogTitle>Connect to data source</DialogTitle>
-          </DialogHeader>
-          <div className="py-4">
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div 
-                className={`border rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 ${selectedDataSource === 'excel' ? 'ring-2 ring-powerbi-primary' : ''}`}
-                onClick={() => setSelectedDataSource('excel')}
-              >
-                <FileSpreadsheet size={24} className="mx-auto mb-2 text-green-600" />
-                <div className="text-sm font-medium">Excel</div>
-              </div>
-              <div 
-                className={`border rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 ${selectedDataSource === 'database' ? 'ring-2 ring-powerbi-primary' : ''}`}
-                onClick={() => setSelectedDataSource('database')}
-              >
-                <Database size={24} className="mx-auto mb-2 text-blue-600" />
-                <div className="text-sm font-medium">Database</div>
-              </div>
-              <div 
-                className={`border rounded-md p-4 text-center cursor-pointer hover:bg-gray-50 ${selectedDataSource === 'web' ? 'ring-2 ring-powerbi-primary' : ''}`}
-                onClick={() => setSelectedDataSource('web')}
-              >
-                <Table size={24} className="mx-auto mb-2 text-purple-600" />
-                <div className="text-sm font-medium">Web</div>
-              </div>
-            </div>
-            
-            {selectedDataSource === 'excel' && (
-              <div>
-                <p className="text-sm mb-4">Connect to Excel file or CSV file on your computer or from cloud storage.</p>
-                <Button variant="outline" size="sm" className="w-full mb-2">
-                  <Upload size={16} className="mr-2" />
-                  Browse files
-                </Button>
-                <Button variant="outline" size="sm" className="w-full">
-                  <Upload size={16} className="mr-2" />
-                  Select from cloud storage
-                </Button>
-              </div>
-            )}
-            
-            {selectedDataSource === 'database' && (
-              <div>
-                <p className="text-sm mb-4">Connect to a SQL database, NoSQL database, or other data sources.</p>
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Server</label>
-                    <input className="w-full p-2 border rounded" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Database</label>
-                    <input className="w-full p-2 border rounded" />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Username</label>
-                      <input className="w-full p-2 border rounded" />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1">Password</label>
-                      <input type="password" className="w-full p-2 border rounded" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-            
-            {selectedDataSource === 'web' && (
-              <div>
-                <p className="text-sm mb-4">Connect to data from web APIs, online services, or web pages.</p>
-                <div>
-                  <label className="block text-sm font-medium mb-1">URL</label>
-                  <input 
-                    className="w-full p-2 border rounded mb-4" 
-                    placeholder="https://"
-                  />
-                  <div className="flex items-center">
-                    <input id="auth-required" type="checkbox" className="mr-2" />
-                    <label htmlFor="auth-required" className="text-sm">Authentication required</label>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsImportDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleImport}>
+            <Button onClick={handleCreateDataset}>
               Connect
             </Button>
           </DialogFooter>
