@@ -11,6 +11,8 @@ import CompactSidebar from '../components/navigation/CompactSidebar';
 import { useCollapsibleSidebar } from '../hooks/useCollapsibleSidebar';
 import SidebarToggle from '../components/navigation/SidebarToggle';
 import { useIsMobile } from '@/hooks/use-mobile';
+import VerticalSidebar from '../components/navigation/VerticalSidebar';
+import { RecommendedItem, RecentItem } from '../types/home';
 
 const Home = () => {
   const [activeTab, setActiveTab] = useState('recent');
@@ -19,7 +21,7 @@ const Home = () => {
   const { isCollapsed, toggleSidebar } = useCollapsibleSidebar(false);
   const isMobile = useIsMobile();
 
-  const recommendedItems = [
+  const recommendedItems: RecommendedItem[] = [
     {
       id: 'rec-1',
       title: 'Explore basic Power BI concepts',
@@ -50,7 +52,7 @@ const Home = () => {
     }
   ];
 
-  const recentItems = [
+  const recentItems: RecentItem[] = [
     {
       id: 'recent-1',
       title: 'Sales Overview',
@@ -77,36 +79,42 @@ const Home = () => {
   return (
     <SidebarProvider>
       <div className="flex h-screen w-full overflow-hidden bg-white">
-        {isCollapsed ? (
-          <CompactSidebar className="relative" />
-        ) : (
-          <div className="relative">
-            <ModernSidebar />
-          </div>
-        )}
+        {/* Vertical sidebar (always visible) */}
+        <VerticalSidebar />
         
-        {!isMobile && (
-          <SidebarToggle isCollapsed={isCollapsed} onClick={toggleSidebar} />
-        )}
-        
-        <div className="flex-1 flex flex-col overflow-hidden">
-          <TopHeader />
+        {/* Content sidebar and main area */}
+        <div className="flex flex-1 overflow-hidden">
+          {isCollapsed ? (
+            <CompactSidebar className="relative" />
+          ) : (
+            <div className="relative">
+              <ModernSidebar />
+            </div>
+          )}
           
-          {/* Main content area */}
-          <div className="flex-1 overflow-auto">
-            <div className="max-w-7xl mx-auto px-4 py-6">
-              <NewReportButton onClick={() => setIsCreateDialogOpen(true)} />
-              
-              {/* Recommended section */}
-              <RecommendedItems items={recommendedItems} />
-              
-              {/* Recent content tabs */}
-              <RecentContent 
-                recentItems={recentItems}
-                activeTab={activeTab}
-                setActiveTab={setActiveTab}
-                searchQuery={searchQuery}
-              />
+          {!isMobile && (
+            <SidebarToggle isCollapsed={isCollapsed} onClick={toggleSidebar} />
+          )}
+          
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <TopHeader />
+            
+            {/* Main content area */}
+            <div className="flex-1 overflow-auto">
+              <div className="max-w-7xl mx-auto px-4 py-6">
+                <NewReportButton onClick={() => setIsCreateDialogOpen(true)} />
+                
+                {/* Recommended section */}
+                <RecommendedItems items={recommendedItems} />
+                
+                {/* Recent content tabs */}
+                <RecentContent 
+                  recentItems={recentItems}
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  searchQuery={searchQuery}
+                />
+              </div>
             </div>
           </div>
         </div>
