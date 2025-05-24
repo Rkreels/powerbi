@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import MainLayout from '../layouts/MainLayout';
+import PowerBILayout from '../layouts/PowerBILayout';
 import { Search, Play, FileText, Database, ChevronRight, Download, Star, Clock, Bookmark, Filter } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -143,7 +142,7 @@ const Demo = () => {
   };
 
   return (
-    <MainLayout>
+    <PowerBILayout>
       <div className="flex-1 overflow-auto bg-gray-50 p-6">
         <div className="mb-6">
           <h1 className="text-2xl font-semibold mb-3">Demo & Learning</h1>
@@ -435,7 +434,7 @@ const Demo = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </MainLayout>
+    </PowerBILayout>
   );
 };
 

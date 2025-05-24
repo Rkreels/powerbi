@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import MainLayout from '../layouts/MainLayout';
+import PowerBILayout from '../layouts/PowerBILayout';
 import { Search, Plus, Filter, Download, Upload, Clock, Database, Calendar, RefreshCw, MoreHorizontal } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -117,7 +116,7 @@ const Datasets = () => {
   };
 
   return (
-    <MainLayout>
+    <PowerBILayout>
       <div className="flex-1 overflow-auto bg-gray-50 p-6">
         <div className="mb-6 flex flex-wrap gap-4 items-center justify-between">
           <div>
@@ -355,7 +354,7 @@ const Datasets = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </MainLayout>
+    </PowerBILayout>
   );
 };
 

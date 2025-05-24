@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import MainLayout from '../layouts/MainLayout';
+import PowerBILayout from '../layouts/PowerBILayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Settings as SettingsIcon, User, Database, FileSpreadsheet, Bell, Shield, Brush, Globe, Check } from 'lucide-react';
@@ -37,7 +37,7 @@ const Settings = () => {
   ];
   
   return (
-    <MainLayout>
+    <PowerBILayout>
       <div className="flex-1 overflow-auto bg-gray-50">
         <div className="p-6 border-b bg-white">
           <h1 className="text-2xl font-semibold">Settings</h1>
@@ -483,7 +483,7 @@ const Settings = () => {
           </div>
         </div>
       </div>
-    </MainLayout>
+    </PowerBILayout>
   );
 };
 

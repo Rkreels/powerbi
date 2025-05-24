@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import MainLayout from '../layouts/MainLayout';
+import PowerBILayout from '../layouts/PowerBILayout';
 import { Plus, Search, RefreshCw, Settings, Link, X, Table, Database } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -117,7 +117,7 @@ const DataModel = () => {
   };
   
   return (
-    <MainLayout>
+    <PowerBILayout>
       <div className="flex-1 overflow-auto bg-gray-50">
         <div className="p-6 border-b bg-white">
           <div className="flex flex-wrap gap-4 items-center justify-between">
@@ -282,7 +282,7 @@ const DataModel = () => {
           )}
         </div>
       </div>
-    </MainLayout>
+    </PowerBILayout>
   );
 };
 
