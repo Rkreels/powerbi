@@ -1,16 +1,16 @@
 
 import { useState, useEffect } from 'react';
 
-export function useCollapsibleSidebar(defaultCollapsed = false) {
+export function useCollapsibleSidebar(defaultCollapsed = true) {
   const SIDEBAR_STATE_KEY = 'powerbi-sidebar-collapsed';
   
-  // Initialize state from localStorage if available
+  // Initialize state from localStorage if available, defaulting to collapsed
   const [isCollapsed, setIsCollapsed] = useState(() => {
     if (typeof window !== 'undefined') {
       const savedState = localStorage.getItem(SIDEBAR_STATE_KEY);
-      return savedState !== null ? JSON.parse(savedState) : defaultCollapsed;
+      return savedState !== null ? JSON.parse(savedState) : true; // Always default to collapsed
     }
-    return defaultCollapsed;
+    return true; // Always default to collapsed
   });
 
   // Toggle sidebar state

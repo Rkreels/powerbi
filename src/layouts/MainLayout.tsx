@@ -14,7 +14,7 @@ interface MainLayoutProps {
 }
 
 const MainLayout = ({ children }: MainLayoutProps) => {
-  const { isCollapsed, toggleSidebar } = useCollapsibleSidebar(false);
+  const { isCollapsed, toggleSidebar } = useCollapsibleSidebar(true); // Always start collapsed
   const isMobile = useIsMobile();
 
   return (
@@ -23,7 +23,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
         {/* Vertical sidebar (always visible) */}
         <VerticalSidebar />
         
-        {/* Content sidebar (collapsible) */}
+        {/* Content sidebar (collapsible) - always start collapsed */}
         <div className="flex flex-1 overflow-hidden">
           {isCollapsed ? (
             <CompactSidebar className="relative" />

@@ -30,27 +30,25 @@ const CompactSidebar: React.FC<CompactSidebarProps> = ({ className }) => {
   ];
   
   return (
-    <div className={`bg-powerbi-nav-bg min-h-screen w-16 flex flex-col items-center py-4 ${className}`}>
-      {/* Logo */}
-      <div className="mb-8 p-2">
-        <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center">
-          <span className="text-powerbi-primary text-lg font-bold">PB</span>
-        </div>
-      </div>
-      
+    <div className={`bg-gray-50 min-h-screen w-12 flex flex-col items-center py-2 border-r border-gray-200 ${className}`}>
       {/* Navigation Items */}
-      <nav className="flex flex-col items-center space-y-4">
+      <nav className="flex flex-col items-center space-y-1 mt-2">
         {menuItems.map((item, index) => (
           <button
             key={index}
             onClick={() => navigate(item.path)}
-            className={`w-10 h-10 rounded-md flex items-center justify-center hover:bg-gray-700 transition-colors ${
-              isActive(item.path) ? 'bg-gray-700 text-white' : 'text-gray-300'
+            className={`w-10 h-10 rounded-md flex items-center justify-center hover:bg-gray-200 transition-colors group relative ${
+              isActive(item.path) ? 'bg-blue-100 text-blue-600 border-r-2 border-blue-600' : 'text-gray-600'
             }`}
             title={item.label}
             aria-label={item.label}
           >
-            <item.icon size={20} />
+            <item.icon size={18} />
+            
+            {/* Tooltip */}
+            <div className="absolute left-12 bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+              {item.label}
+            </div>
           </button>
         ))}
       </nav>

@@ -18,7 +18,7 @@ const Home = () => {
   const [activeTab, setActiveTab] = useState('recent');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { isCollapsed, toggleSidebar } = useCollapsibleSidebar(false);
+  const { isCollapsed, toggleSidebar } = useCollapsibleSidebar(true); // Always start collapsed
   const isMobile = useIsMobile();
 
   const recommendedItems: RecommendedItem[] = [
@@ -82,7 +82,7 @@ const Home = () => {
         {/* Vertical sidebar (always visible) */}
         <VerticalSidebar />
         
-        {/* Content sidebar and main area */}
+        {/* Content sidebar and main area - always start collapsed */}
         <div className="flex flex-1 overflow-hidden">
           {isCollapsed ? (
             <CompactSidebar className="relative" />
