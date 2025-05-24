@@ -12,7 +12,7 @@ import Settings from "./pages/Settings";
 import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
-import MainLayout from "./layouts/MainLayout";
+import PowerBILayout from "./layouts/PowerBILayout";
 
 const queryClient = new QueryClient();
 
@@ -23,13 +23,13 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<MainLayout><Dashboard /></MainLayout>} />
-          <Route path="/report" element={<MainLayout><ReportEditor /></MainLayout>} />
-          <Route path="/datasets" element={<MainLayout><Datasets /></MainLayout>} />
-          <Route path="/model" element={<MainLayout><DataModel /></MainLayout>} />
-          <Route path="/settings" element={<MainLayout><Settings /></MainLayout>} />
-          <Route path="/demo" element={<MainLayout><Demo /></MainLayout>} />
+          <Route path="/" element={<PowerBILayout><Home /></PowerBILayout>} />
+          <Route path="/dashboard" element={<PowerBILayout><Dashboard /></PowerBILayout>} />
+          <Route path="/report" element={<PowerBILayout><ReportEditor /></PowerBILayout>} />
+          <Route path="/datasets" element={<PowerBILayout><Datasets /></PowerBILayout>} />
+          <Route path="/model" element={<PowerBILayout><DataModel /></PowerBILayout>} />
+          <Route path="/settings" element={<PowerBILayout><Settings /></PowerBILayout>} />
+          <Route path="/demo" element={<PowerBILayout><Demo /></PowerBILayout>} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
