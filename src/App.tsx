@@ -22,16 +22,18 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<PowerBILayout><Home /></PowerBILayout>} />
-          <Route path="/dashboard" element={<PowerBILayout><Dashboard /></PowerBILayout>} />
-          <Route path="/report" element={<PowerBILayout><ReportEditor /></PowerBILayout>} />
-          <Route path="/datasets" element={<PowerBILayout><Datasets /></PowerBILayout>} />
-          <Route path="/model" element={<PowerBILayout><DataModel /></PowerBILayout>} />
-          <Route path="/settings" element={<PowerBILayout><Settings /></PowerBILayout>} />
-          <Route path="/demo" element={<PowerBILayout><Demo /></PowerBILayout>} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <PowerBILayout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/report" element={<ReportEditor />} />
+            <Route path="/datasets" element={<Datasets />} />
+            <Route path="/model" element={<DataModel />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/demo" element={<Demo />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </PowerBILayout>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
