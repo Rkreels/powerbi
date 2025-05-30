@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import PowerBILayout from '../layouts/PowerBILayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Settings as SettingsIcon, User, Database, FileSpreadsheet, Bell, Shield, Brush, Globe, Check } from 'lucide-react';
