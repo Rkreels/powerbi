@@ -60,7 +60,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex-1 overflow-auto bg-gray-50 p-6">
+    <div className="w-full h-full p-6 bg-gray-50">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-semibold mb-2">Sales Dashboard</h1>
