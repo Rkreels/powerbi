@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PowerBILayout from '../layouts/PowerBILayout';
 import { Search, Play, FileText, Database, ChevronRight, Download, Star, Clock, Bookmark, Filter } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -142,190 +141,188 @@ const Demo = () => {
   };
 
   return (
-    <PowerBILayout>
-      <div className="flex-1 overflow-auto bg-gray-50 p-6">
-        <div className="mb-6">
-          <h1 className="text-2xl font-semibold mb-3">Demo & Learning</h1>
-          <p className="text-gray-600">
-            Explore sample datasets and tutorials to learn and practice Power BI functionality
-          </p>
+    <div className="flex-1 overflow-auto bg-gray-50 p-6">
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold mb-3">Demo & Learning</h1>
+        <p className="text-gray-600">
+          Explore sample datasets and tutorials to learn and practice Power BI functionality
+        </p>
+      </div>
+      
+      <div className="mb-6 flex items-center justify-between">
+        <div className="relative w-64">
+          <Search size={16} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <input 
+            type="text" 
+            placeholder="Search tutorials & datasets" 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-8 pr-4 py-2 border rounded-md w-full focus:outline-none focus:ring-1 focus:ring-powerbi-primary"
+          />
         </div>
         
-        <div className="mb-6 flex items-center justify-between">
-          <div className="relative w-64">
-            <Search size={16} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Search tutorials & datasets" 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-4 py-2 border rounded-md w-full focus:outline-none focus:ring-1 focus:ring-powerbi-primary"
-            />
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm">
-              <Filter size={14} className="mr-1" />
-              Filter
-            </Button>
-            <Button variant="outline" size="sm">
-              <Star size={14} className="mr-1" />
-              Favorites
-            </Button>
-          </div>
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" size="sm">
+            <Filter size={14} className="mr-1" />
+            Filter
+          </Button>
+          <Button variant="outline" size="sm">
+            <Star size={14} className="mr-1" />
+            Favorites
+          </Button>
         </div>
+      </div>
+      
+      <Tabs defaultValue="tutorials" className="mb-6">
+        <TabsList className="mb-4">
+          <TabsTrigger value="tutorials">Tutorials & Guides</TabsTrigger>
+          <TabsTrigger value="datasets">Sample Datasets</TabsTrigger>
+          <TabsTrigger value="templates">Report Templates</TabsTrigger>
+        </TabsList>
         
-        <Tabs defaultValue="tutorials" className="mb-6">
-          <TabsList className="mb-4">
-            <TabsTrigger value="tutorials">Tutorials & Guides</TabsTrigger>
-            <TabsTrigger value="datasets">Sample Datasets</TabsTrigger>
-            <TabsTrigger value="templates">Report Templates</TabsTrigger>
-          </TabsList>
+        <TabsContent value="tutorials">
+          <div className="mb-4 flex items-center space-x-2">
+            <Button 
+              variant={activeCategory === 'all' ? "default" : "outline"} 
+              size="sm"
+              onClick={() => setActiveCategory('all')}
+            >
+              All
+            </Button>
+            <Button 
+              variant={activeCategory === 'beginner' ? "default" : "outline"} 
+              size="sm"
+              onClick={() => setActiveCategory('beginner')}
+            >
+              Beginner
+            </Button>
+            <Button 
+              variant={activeCategory === 'intermediate' ? "default" : "outline"} 
+              size="sm"
+              onClick={() => setActiveCategory('intermediate')}
+            >
+              Intermediate
+            </Button>
+            <Button 
+              variant={activeCategory === 'advanced' ? "default" : "outline"} 
+              size="sm"
+              onClick={() => setActiveCategory('advanced')}
+            >
+              Advanced
+            </Button>
+          </div>
           
-          <TabsContent value="tutorials">
-            <div className="mb-4 flex items-center space-x-2">
-              <Button 
-                variant={activeCategory === 'all' ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setActiveCategory('all')}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredTutorials.map(tutorial => (
+              <div 
+                key={tutorial.id}
+                className="bg-white rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                onClick={() => handleOpenTutorial(tutorial)}
               >
-                All
-              </Button>
-              <Button 
-                variant={activeCategory === 'beginner' ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setActiveCategory('beginner')}
-              >
-                Beginner
-              </Button>
-              <Button 
-                variant={activeCategory === 'intermediate' ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setActiveCategory('intermediate')}
-              >
-                Intermediate
-              </Button>
-              <Button 
-                variant={activeCategory === 'advanced' ? "default" : "outline"} 
-                size="sm"
-                onClick={() => setActiveCategory('advanced')}
-              >
-                Advanced
-              </Button>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredTutorials.map(tutorial => (
-                <div 
-                  key={tutorial.id}
-                  className="bg-white rounded-lg border shadow-sm overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => handleOpenTutorial(tutorial)}
-                >
-                  <div className="h-40 bg-gradient-to-r from-powerbi-primary to-powerbi-secondary relative">
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="bg-white/20 w-12 h-12 rounded-full flex items-center justify-center">
-                        <Play size={24} className="text-white" />
-                      </div>
-                    </div>
-                    <div className="absolute top-2 right-2 bg-powerbi-primary/90 text-white px-2 py-0.5 rounded text-xs font-medium">
-                      {tutorial.duration}
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
-                      <div className="text-white text-xs font-medium">{tutorial.popularity}</div>
+                <div className="h-40 bg-gradient-to-r from-powerbi-primary to-powerbi-secondary relative">
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="bg-white/20 w-12 h-12 rounded-full flex items-center justify-center">
+                      <Play size={24} className="text-white" />
                     </div>
                   </div>
-                  
-                  <div className="p-4">
-                    <h3 className="font-medium mb-2">{tutorial.title}</h3>
-                    <p className="text-sm text-gray-600 line-clamp-2 mb-3">{tutorial.description}</p>
-                    <div className="flex flex-wrap gap-1">
-                      {tutorial.topics.map((topic: string, idx: number) => (
-                        <span key={idx} className="bg-gray-100 text-gray-800 text-xs px-2 py-0.5 rounded">
-                          {topic}
-                        </span>
-                      ))}
-                    </div>
+                  <div className="absolute top-2 right-2 bg-powerbi-primary/90 text-white px-2 py-0.5 rounded text-xs font-medium">
+                    {tutorial.duration}
+                  </div>
+                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-3">
+                    <div className="text-white text-xs font-medium">{tutorial.popularity}</div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="datasets">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {filteredDatasets.map(dataset => (
-                <div 
-                  key={dataset.id}
-                  className="bg-white rounded-lg border shadow-sm overflow-hidden"
-                >
-                  <div className="p-4 flex items-start">
-                    <div className="bg-blue-100 p-2 rounded mr-4">
-                      <Database size={24} className="text-powerbi-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-medium mb-1">{dataset.name}</h3>
-                      <p className="text-sm text-gray-600 mb-2">{dataset.description}</p>
-                      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 mb-3">
-                        <div className="flex items-center">
-                          <Database size={12} className="mr-1" />
-                          {dataset.tables} Tables
-                        </div>
-                        <div className="flex items-center">
-                          <FileText size={12} className="mr-1" />
-                          {dataset.rows} Rows
-                        </div>
-                        <div className="flex items-center">
-                          <Download size={12} className="mr-1" />
-                          {dataset.size}
-                        </div>
-                      </div>
-                      <div>
-                        <Button size="sm" onClick={() => handleImportDataset(dataset)}>
-                          Import Dataset
-                        </Button>
-                      </div>
-                    </div>
+                
+                <div className="p-4">
+                  <h3 className="font-medium mb-2">{tutorial.title}</h3>
+                  <p className="text-sm text-gray-600 line-clamp-2 mb-3">{tutorial.description}</p>
+                  <div className="flex flex-wrap gap-1">
+                    {tutorial.topics.map((topic: string, idx: number) => (
+                      <span key={idx} className="bg-gray-100 text-gray-800 text-xs px-2 py-0.5 rounded">
+                        {topic}
+                      </span>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="templates">
-            <div className="bg-white border rounded-lg p-8 text-center">
-              <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText size={40} className="text-gray-400" />
               </div>
-              <h3 className="text-lg font-medium mb-2">Report Templates Coming Soon</h3>
-              <p className="text-gray-600 max-w-md mx-auto mb-4">
-                We're working on adding ready-made report templates for different industries and use cases.
-              </p>
-              <Button variant="outline">
-                Check Back Later
-              </Button>
-            </div>
-          </TabsContent>
-        </Tabs>
-        
-        <div className="bg-white border rounded-lg shadow-sm p-4 mb-6">
-          <h2 className="text-lg font-medium mb-3">Learning Resources</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <ResourceCard 
-              title="Power BI Documentation"
-              description="Official documentation and guides for Microsoft Power BI"
-              icon={<Bookmark size={18} className="text-powerbi-primary" />}
-            />
-            <ResourceCard 
-              title="Video Tutorials"
-              description="Step-by-step video guides for all experience levels"
-              icon={<Play size={18} className="text-powerbi-primary" />}
-            />
-            <ResourceCard 
-              title="Community Forum"
-              description="Connect with other Power BI users and experts"
-              icon={<Clock size={18} className="text-powerbi-primary" />}
-            />
+            ))}
           </div>
+        </TabsContent>
+        
+        <TabsContent value="datasets">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {filteredDatasets.map(dataset => (
+              <div 
+                key={dataset.id}
+                className="bg-white rounded-lg border shadow-sm overflow-hidden"
+              >
+                <div className="p-4 flex items-start">
+                  <div className="bg-blue-100 p-2 rounded mr-4">
+                    <Database size={24} className="text-powerbi-primary" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-medium mb-1">{dataset.name}</h3>
+                    <p className="text-sm text-gray-600 mb-2">{dataset.description}</p>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 mb-3">
+                      <div className="flex items-center">
+                        <Database size={12} className="mr-1" />
+                        {dataset.tables} Tables
+                      </div>
+                      <div className="flex items-center">
+                        <FileText size={12} className="mr-1" />
+                        {dataset.rows} Rows
+                      </div>
+                      <div className="flex items-center">
+                        <Download size={12} className="mr-1" />
+                        {dataset.size}
+                      </div>
+                    </div>
+                    <div>
+                      <Button size="sm" onClick={() => handleImportDataset(dataset)}>
+                        Import Dataset
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="templates">
+          <div className="bg-white border rounded-lg p-8 text-center">
+            <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <FileText size={40} className="text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium mb-2">Report Templates Coming Soon</h3>
+            <p className="text-gray-600 max-w-md mx-auto mb-4">
+              We're working on adding ready-made report templates for different industries and use cases.
+            </p>
+            <Button variant="outline">
+              Check Back Later
+            </Button>
+          </div>
+        </TabsContent>
+      </Tabs>
+      
+      <div className="bg-white border rounded-lg shadow-sm p-4 mb-6">
+        <h2 className="text-lg font-medium mb-3">Learning Resources</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <ResourceCard 
+            title="Power BI Documentation"
+            description="Official documentation and guides for Microsoft Power BI"
+            icon={<Bookmark size={18} className="text-powerbi-primary" />}
+          />
+          <ResourceCard 
+            title="Video Tutorials"
+            description="Step-by-step video guides for all experience levels"
+            icon={<Play size={18} className="text-powerbi-primary" />}
+          />
+          <ResourceCard 
+            title="Community Forum"
+            description="Connect with other Power BI users and experts"
+            icon={<Clock size={18} className="text-powerbi-primary" />}
+          />
         </div>
       </div>
       
@@ -434,7 +431,7 @@ const Demo = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </PowerBILayout>
+    </div>
   );
 };
 

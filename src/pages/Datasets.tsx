@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import PowerBILayout from '../layouts/PowerBILayout';
 import { Search, Plus, Filter, Download, Upload, Clock, Database, Calendar, RefreshCw, MoreHorizontal } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -116,187 +115,185 @@ const Datasets = () => {
   };
 
   return (
-    <PowerBILayout>
-      <div className="flex-1 overflow-auto bg-gray-50 p-6">
-        <div className="mb-6 flex flex-wrap gap-4 items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold mb-2">Datasets</h1>
-            <div className="flex items-center">
-              <span className="text-sm text-gray-500">{datasets.length} datasets available</span>
-              <button 
-                className={`ml-2 p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded flex items-center ${isRefreshing ? 'animate-spin' : ''}`}
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-              >
-                <RefreshCw size={14} />
-              </button>
-            </div>
-          </div>
-          
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Search size={16} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
-              <input 
-                type="text" 
-                placeholder="Search datasets" 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 pr-4 py-2 border rounded-md w-64 focus:outline-none focus:ring-1 focus:ring-powerbi-primary"
-              />
-            </div>
-            <Button onClick={() => setIsCreateDialogOpen(true)}>
-              <Plus size={16} className="mr-1" />
-              Get Data
-            </Button>
+    <div className="flex-1 overflow-auto bg-gray-50 p-6">
+      <div className="mb-6 flex flex-wrap gap-4 items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold mb-2">Datasets</h1>
+          <div className="flex items-center">
+            <span className="text-sm text-gray-500">{datasets.length} datasets available</span>
+            <button 
+              className={`ml-2 p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded flex items-center ${isRefreshing ? 'animate-spin' : ''}`}
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+            >
+              <RefreshCw size={14} />
+            </button>
           </div>
         </div>
         
-        <div className="bg-white rounded-lg border shadow-sm mb-6">
-          <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex items-center space-x-2">
-              <button 
-                className={`p-1.5 rounded ${datasetsView === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-100'}`}
-                onClick={() => setDatasetsView('grid')}
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                  <rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                  <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                  <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                </svg>
-              </button>
-              <button
-                className={`p-1.5 rounded ${datasetsView === 'list' ? 'bg-gray-100' : 'hover:bg-gray-100'}`}
-                onClick={() => setDatasetsView('list')}
-              >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <rect x="1" y="2" width="14" height="2" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                  <rect x="1" y="7" width="14" height="2" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                  <rect x="1" y="12" width="14" height="2" rx="1" stroke="currentColor" strokeWidth="1.5"/>
-                </svg>
-              </button>
-              <Button variant="outline" size="sm" className="ml-2">
-                <Filter size={14} className="mr-1" />
-                Filter
-              </Button>
-            </div>
-            
-            <div className="flex items-center space-x-2">
-              {selectedDatasets.length > 0 && (
-                <span className="text-sm text-gray-500">{selectedDatasets.length} selected</span>
-              )}
-              <Button variant="outline" size="sm" disabled={selectedDatasets.length === 0}>
-                <RefreshCw size={14} className="mr-1" />
-                Refresh
-              </Button>
-              <Button variant="outline" size="sm" disabled={selectedDatasets.length === 0}>
-                <Download size={14} className="mr-1" />
-                Export
-              </Button>
-              <button className="p-1.5 rounded hover:bg-gray-100">
-                <MoreHorizontal size={16} />
-              </button>
-            </div>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Search size={16} className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input 
+              type="text" 
+              placeholder="Search datasets" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 pr-4 py-2 border rounded-md w-64 focus:outline-none focus:ring-1 focus:ring-powerbi-primary"
+            />
+          </div>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <Plus size={16} className="mr-1" />
+            Get Data
+          </Button>
+        </div>
+      </div>
+      
+      <div className="bg-white rounded-lg border shadow-sm mb-6">
+        <div className="flex items-center justify-between p-4 border-b">
+          <div className="flex items-center space-x-2">
+            <button 
+              className={`p-1.5 rounded ${datasetsView === 'grid' ? 'bg-gray-100' : 'hover:bg-gray-100'}`}
+              onClick={() => setDatasetsView('grid')}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                <rect x="9" y="1" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                <rect x="1" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                <rect x="9" y="9" width="6" height="6" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+              </svg>
+            </button>
+            <button
+              className={`p-1.5 rounded ${datasetsView === 'list' ? 'bg-gray-100' : 'hover:bg-gray-100'}`}
+              onClick={() => setDatasetsView('list')}
+            >
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="2" width="14" height="2" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                <rect x="1" y="7" width="14" height="2" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+                <rect x="1" y="12" width="14" height="2" rx="1" stroke="currentColor" strokeWidth="1.5"/>
+              </svg>
+            </button>
+            <Button variant="outline" size="sm" className="ml-2">
+              <Filter size={14} className="mr-1" />
+              Filter
+            </Button>
           </div>
           
-          <div className="p-4">
-            {datasetsView === 'list' ? (
-              <div className="border rounded-md overflow-hidden">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8">
-                        <Checkbox 
-                          checked={selectedDatasets.length === datasets.length && datasets.length > 0} 
-                          onCheckedChange={selectAllDatasets} 
-                        />
-                      </th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Refreshed</th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tables</th>
-                      <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                      <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {filteredDatasets.map((dataset) => (
-                      <tr key={dataset.id} className="hover:bg-gray-50">
-                        <td className="px-3 py-4 whitespace-nowrap">
-                          <Checkbox 
-                            checked={selectedDatasets.includes(dataset.id)} 
-                            onCheckedChange={() => toggleSelectDataset(dataset.id)} 
-                          />
-                        </td>
-                        <td className="px-3 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <Database size={16} className="mr-2 text-powerbi-primary" />
-                            <div className="text-sm font-medium text-gray-900">{dataset.name}</div>
-                          </div>
-                        </td>
-                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{dataset.owner}</td>
-                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{dataset.type}</td>
-                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{dataset.lastRefreshed}</td>
-                        <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{dataset.tables}</td>
-                        <td className="px-3 py-4 whitespace-nowrap">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            dataset.status === 'online' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {dataset.status}
-                          </span>
-                        </td>
-                        <td className="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
-                          <button className="text-powerbi-primary hover:text-powerbi-secondary px-2">Edit</button>
-                          <button className="text-powerbi-primary hover:text-powerbi-secondary px-2">Open</button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredDatasets.map((dataset) => (
-                  <div 
-                    key={dataset.id} 
-                    className="border rounded-lg p-4 hover:shadow-md cursor-pointer relative"
-                    onClick={() => toggleSelectDataset(dataset.id)}
-                  >
-                    <div className="absolute top-4 left-4">
-                      <Checkbox 
-                        checked={selectedDatasets.includes(dataset.id)}
-                        className="pointer-events-none" 
-                      />
-                    </div>
-                    <div className="flex items-center mb-3 pl-8">
-                      <Database size={18} className="mr-2 text-powerbi-primary" />
-                      <h3 className="font-medium truncate">{dataset.name}</h3>
-                    </div>
-                    <div className="grid grid-cols-2 gap-y-2 text-sm text-gray-600">
-                      <div>Owner:</div>
-                      <div>{dataset.owner}</div>
-                      <div>Created:</div>
-                      <div>{dataset.created}</div>
-                      <div>Size:</div>
-                      <div>{dataset.size}</div>
-                      <div>Type:</div>
-                      <div>{dataset.type}</div>
-                    </div>
-                    <div className="mt-3 pt-3 border-t flex justify-between items-center">
-                      <div className="flex items-center text-xs text-gray-500">
-                        <Clock size={12} className="mr-1" />
-                        <span>Last refreshed {dataset.lastRefreshed}</span>
-                      </div>
-                      <button className="p-1 hover:bg-gray-100 rounded">
-                        <MoreHorizontal size={14} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <div className="flex items-center space-x-2">
+            {selectedDatasets.length > 0 && (
+              <span className="text-sm text-gray-500">{selectedDatasets.length} selected</span>
             )}
+            <Button variant="outline" size="sm" disabled={selectedDatasets.length === 0}>
+              <RefreshCw size={14} className="mr-1" />
+              Refresh
+            </Button>
+            <Button variant="outline" size="sm" disabled={selectedDatasets.length === 0}>
+              <Download size={14} className="mr-1" />
+              Export
+            </Button>
+            <button className="p-1.5 rounded hover:bg-gray-100">
+              <MoreHorizontal size={16} />
+            </button>
           </div>
+        </div>
+        
+        <div className="p-4">
+          {datasetsView === 'list' ? (
+            <div className="border rounded-md overflow-hidden">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-8">
+                      <Checkbox 
+                        checked={selectedDatasets.length === datasets.length && datasets.length > 0} 
+                        onCheckedChange={selectAllDatasets} 
+                      />
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Refreshed</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tables</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th className="px-3 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredDatasets.map((dataset) => (
+                    <tr key={dataset.id} className="hover:bg-gray-50">
+                      <td className="px-3 py-4 whitespace-nowrap">
+                        <Checkbox 
+                          checked={selectedDatasets.includes(dataset.id)} 
+                          onCheckedChange={() => toggleSelectDataset(dataset.id)} 
+                        />
+                      </td>
+                      <td className="px-3 py-4 whitespace-nowrap">
+                        <div className="flex items-center">
+                          <Database size={16} className="mr-2 text-powerbi-primary" />
+                          <div className="text-sm font-medium text-gray-900">{dataset.name}</div>
+                        </div>
+                      </td>
+                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{dataset.owner}</td>
+                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{dataset.type}</td>
+                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{dataset.lastRefreshed}</td>
+                      <td className="px-3 py-4 whitespace-nowrap text-sm text-gray-500">{dataset.tables}</td>
+                      <td className="px-3 py-4 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          dataset.status === 'online' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
+                        }`}>
+                          {dataset.status}
+                        </span>
+                      </td>
+                      <td className="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button className="text-powerbi-primary hover:text-powerbi-secondary px-2">Edit</button>
+                        <button className="text-powerbi-primary hover:text-powerbi-secondary px-2">Open</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredDatasets.map((dataset) => (
+                <div 
+                  key={dataset.id} 
+                  className="border rounded-lg p-4 hover:shadow-md cursor-pointer relative"
+                  onClick={() => toggleSelectDataset(dataset.id)}
+                >
+                  <div className="absolute top-4 left-4">
+                    <Checkbox 
+                      checked={selectedDatasets.includes(dataset.id)}
+                      className="pointer-events-none" 
+                    />
+                  </div>
+                  <div className="flex items-center mb-3 pl-8">
+                    <Database size={18} className="mr-2 text-powerbi-primary" />
+                    <h3 className="font-medium truncate">{dataset.name}</h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-y-2 text-sm text-gray-600">
+                    <div>Owner:</div>
+                    <div>{dataset.owner}</div>
+                    <div>Created:</div>
+                    <div>{dataset.created}</div>
+                    <div>Size:</div>
+                    <div>{dataset.size}</div>
+                    <div>Type:</div>
+                    <div>{dataset.type}</div>
+                  </div>
+                  <div className="mt-3 pt-3 border-t flex justify-between items-center">
+                    <div className="flex items-center text-xs text-gray-500">
+                      <Clock size={12} className="mr-1" />
+                      <span>Last refreshed {dataset.lastRefreshed}</span>
+                    </div>
+                    <button className="p-1 hover:bg-gray-100 rounded">
+                      <MoreHorizontal size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </div>
       
@@ -354,7 +351,7 @@ const Datasets = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </PowerBILayout>
+    </div>
   );
 };
 
