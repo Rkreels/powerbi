@@ -12,7 +12,8 @@ import Settings from "./pages/Settings";
 import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
-import PowerBILayout from "./layouts/PowerBILayout";
+import PowerBISidebar from "./components/navigation/PowerBISidebar";
+import PowerBITopBar from "./components/navigation/PowerBITopBar";
 
 const queryClient = new QueryClient();
 
@@ -22,18 +23,26 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <PowerBILayout>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/report" element={<ReportEditor />} />
-            <Route path="/datasets" element={<Datasets />} />
-            <Route path="/model" element={<DataModel />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/demo" element={<Demo />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </PowerBILayout>
+        <div className="flex h-screen w-full overflow-hidden bg-white">
+          <PowerBISidebar />
+          
+          <div className="flex-1 flex flex-col overflow-hidden">
+            <PowerBITopBar />
+            
+            <div className="flex-1 overflow-auto bg-gray-50">
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/report" element={<ReportEditor />} />
+                <Route path="/datasets" element={<Datasets />} />
+                <Route path="/model" element={<DataModel />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/demo" element={<Demo />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
+          </div>
+        </div>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
