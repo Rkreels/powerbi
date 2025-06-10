@@ -17,7 +17,9 @@ import {
   HelpCircle,
   Search,
   Filter,
-  MoreHorizontal
+  MoreHorizontal,
+  Menu,
+  X
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -133,8 +135,18 @@ const PowerBISidebar = () => {
   const [selectedWorkspace, setSelectedWorkspace] = useState('My workspace');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState('home');
+  const [isExtendedMenuOpen, setIsExtendedMenuOpen] = useState(false);
   
   const isActive = (path: string) => location.pathname === path;
+
+  const extendedMenuItems = [
+    { icon: Home, label: 'Home', path: '/' },
+    { icon: Layout, label: 'Workspaces', path: '/dashboard' },
+    { icon: BarChart2, label: 'Reports', path: '/report' },
+    { icon: FileSearch, label: 'Datasets', path: '/datasets' },
+    { icon: Settings, label: 'Settings', path: '/settings' },
+    { icon: HelpCircle, label: 'Help & Support', path: '/demo' },
+  ];
 
   const workspaces = [
     { name: 'My workspace', hasUpdates: true },
@@ -168,15 +180,60 @@ const PowerBISidebar = () => {
     }
   ];
 
+  const toggleExtendedMenu = () => {
+    setIsExtendedMenuOpen(!isExtendedMenuOpen);
+  };
+
+  const handleExtendedMenuItemClick = (path: string) => {
+    navigate(path);
+    setIsExtendedMenuOpen(false);
+  };
+
   return (
     <div className="flex h-screen">
       {/* Left Navigation Bar */}
-      <div className="bg-white border-r border-gray-200 w-16 min-h-screen flex flex-col items-center shadow-sm">
-        {/* Logo */}
-        <div className="p-3 flex justify-center">
-          <div className="w-9 h-9 bg-yellow-500 rounded-sm flex items-center justify-center">
-            <Grid3X3 size={20} className="text-white" />
-          </div>
+      <div className="bg-white border-r border-gray-200 w-16 min-h-screen flex flex-col items-center shadow-sm relative">
+        {/* Logo with Extended Menu Toggle */}
+        <div className="p-3 flex justify-center relative">
+          <button 
+            onClick={toggleExtendedMenu}
+            className="w-9 h-9 bg-yellow-500 rounded-sm flex items-center justify-center hover:bg-yellow-600 transition-colors"
+          >
+            {isExtendedMenuOpen ? (
+              <X size={20} className="text-white" />
+            ) : (
+              <Grid3X3 size={20} className="text-white" />
+            )}
+          </button>
+
+          {/* Extended Menu Popup */}
+          {isExtendedMenuOpen && (
+            <div className="absolute top-full left-0 mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50 animate-fade-in">
+              <div className="p-4 border-b border-gray-200">
+                <h3 className="font-semibold text-gray-900">Quick Navigation</h3>
+              </div>
+              <div className="py-2">
+                {extendedMenuItems.map((item, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleExtendedMenuItemClick(item.path)}
+                    className={`w-full flex items-center px-4 py-3 text-sm hover:bg-gray-100 transition-colors ${
+                      isActive(item.path) ? 'bg-blue-50 text-blue-600 border-r-2 border-blue-600' : 'text-gray-700'
+                    }`}
+                  >
+                    <item.icon size={18} className="mr-3" />
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="p-4 border-t border-gray-200 bg-gray-50">
+                <div className="flex items-center justify-between text-xs text-gray-500">
+                  <span>Power BI Service</span>
+                  <span>v2.0</span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         
         {/* Nav items */}
@@ -240,6 +297,14 @@ const PowerBISidebar = () => {
             />
           </div>
         </div>
+
+        {/* Overlay to close extended menu when clicking outside */}
+        {isExtendedMenuOpen && (
+          <div 
+            className="fixed inset-0 z-40" 
+            onClick={() => setIsExtendedMenuOpen(false)}
+          />
+        )}
       </div>
 
       {/* Content Sidebar */}
