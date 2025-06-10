@@ -136,6 +136,7 @@ const PowerBISidebar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState('home');
   const [isExtendedMenuOpen, setIsExtendedMenuOpen] = useState(false);
+  const [isContentSidebarOpen, setIsContentSidebarOpen] = useState(false);
   
   const isActive = (path: string) => location.pathname === path;
 
@@ -187,6 +188,10 @@ const PowerBISidebar = () => {
   const handleExtendedMenuItemClick = (path: string) => {
     navigate(path);
     setIsExtendedMenuOpen(false);
+  };
+
+  const toggleContentSidebar = () => {
+    setIsContentSidebarOpen(!isContentSidebarOpen);
   };
 
   return (
@@ -257,7 +262,7 @@ const PowerBISidebar = () => {
             label="Browse" 
             onClick={() => {
               setActiveSection('browse');
-              navigate('/datasets');
+              toggleContentSidebar();
             }} 
           />
           <NavItem 
@@ -266,7 +271,7 @@ const PowerBISidebar = () => {
             isActive={activeSection === 'workspaces'}
             onClick={() => {
               setActiveSection('workspaces');
-              navigate('/dashboard');
+              toggleContentSidebar();
             }} 
             badge={2}
           />
@@ -307,145 +312,159 @@ const PowerBISidebar = () => {
         )}
       </div>
 
-      {/* Content Sidebar */}
-      <div className="w-64 bg-gray-50 border-r border-gray-200 flex flex-col">
-        {/* Header */}
-        <div className="p-4 border-b border-gray-200 bg-white">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold">Power BI</h2>
-            <button className="p-1 hover:bg-gray-100 rounded">
-              <MoreHorizontal size={16} />
-            </button>
-          </div>
+      {/* Content Sidebar Popup */}
+      {isContentSidebarOpen && (
+        <>
+          {/* Overlay */}
+          <div 
+            className="fixed inset-0 z-40 bg-black bg-opacity-50" 
+            onClick={() => setIsContentSidebarOpen(false)}
+          />
           
-          {/* Search */}
-          <div className="relative">
-            <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Search..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-        </div>
-
-        {/* Workspace Selector */}
-        <div className="p-4 border-b border-gray-200 bg-white">
-          <div className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded">
-            <div className="flex items-center">
-              <Layout size={16} className="mr-2 text-gray-500" />
-              <span className="text-sm font-medium">{selectedWorkspace}</span>
-            </div>
-            <ChevronDown size={16} className="text-gray-400" />
-          </div>
-        </div>
-
-        {/* Navigation Sections */}
-        <div className="flex-1 overflow-auto">
-          {/* Quick Access */}
-          <div className="border-b border-gray-200">
-            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Quick Access
-            </div>
-            <div className="pb-2">
-              <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
-                <Star size={16} className="mr-2 text-yellow-500" />
-                <span className="text-sm">Favorites</span>
+          {/* Content Sidebar */}
+          <div className="fixed left-16 top-0 w-64 h-full bg-gray-50 border-r border-gray-200 flex flex-col z-50 animate-slide-in-right shadow-lg">
+            {/* Header */}
+            <div className="p-4 border-b border-gray-200 bg-white">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold">Power BI</h2>
+                <button 
+                  className="p-1 hover:bg-gray-100 rounded"
+                  onClick={() => setIsContentSidebarOpen(false)}
+                >
+                  <X size={16} />
+                </button>
               </div>
-              <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
-                <Clock size={16} className="mr-2 text-gray-500" />
-                <span className="text-sm">Recent</span>
-              </div>
-              <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
-                <Users size={16} className="mr-2 text-gray-500" />
-                <span className="text-sm">Shared with me</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="border-b border-gray-200">
-            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Content
-            </div>
-            <div className="pb-2">
-              <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
-                <div className="flex items-center">
-                  <BarChart2 size={16} className="mr-2 text-green-600" />
-                  <span className="text-sm">Reports</span>
-                </div>
-                <span className="text-xs text-gray-400">12</span>
-              </div>
-              <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
-                <div className="flex items-center">
-                  <Layout size={16} className="mr-2 text-blue-600" />
-                  <span className="text-sm">Dashboards</span>
-                </div>
-                <span className="text-xs text-gray-400">8</span>
-              </div>
-              <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
-                <div className="flex items-center">
-                  <FileSearch size={16} className="mr-2 text-orange-600" />
-                  <span className="text-sm">Datasets</span>
-                </div>
-                <span className="text-xs text-gray-400">5</span>
-              </div>
-              <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
-                <div className="flex items-center">
-                  <Filter size={16} className="mr-2 text-purple-600" />
-                  <span className="text-sm">Dataflows</span>
-                </div>
-                <span className="text-xs text-gray-400">3</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Items */}
-          <div>
-            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Recent Items
-            </div>
-            <div className="pb-2">
-              {recentContent.map((item, index) => (
-                <ContentItem key={index} {...item} />
-              ))}
-            </div>
-          </div>
-
-          {/* Workspaces */}
-          <div className="border-t border-gray-200">
-            <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-              Workspaces
-            </div>
-            <div className="pb-2">
-              {workspaces.map((workspace, index) => (
-                <WorkspaceItem 
-                  key={index}
-                  name={workspace.name}
-                  isActive={workspace.name === selectedWorkspace}
-                  hasUpdates={workspace.hasUpdates}
-                  onClick={() => setSelectedWorkspace(workspace.name)}
+              
+              {/* Search */}
+              <div className="relative">
+                <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                <input 
+                  type="text" 
+                  placeholder="Search..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 />
-              ))}
+              </div>
             </div>
-          </div>
-        </div>
 
-        {/* Footer */}
-        <div className="p-4 border-t border-gray-200 bg-white">
-          <div className="text-xs text-gray-500">
-            <div className="flex justify-between items-center mb-1">
-              <span>Storage used</span>
-              <span>2.1 GB / 10 GB</span>
+            {/* Workspace Selector */}
+            <div className="p-4 border-b border-gray-200 bg-white">
+              <div className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded">
+                <div className="flex items-center">
+                  <Layout size={16} className="mr-2 text-gray-500" />
+                  <span className="text-sm font-medium">{selectedWorkspace}</span>
+                </div>
+                <ChevronDown size={16} className="text-gray-400" />
+              </div>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-1">
-              <div className="bg-blue-500 h-1 rounded-full" style={{ width: '21%' }}></div>
+
+            {/* Navigation Sections */}
+            <div className="flex-1 overflow-auto">
+              {/* Quick Access */}
+              <div className="border-b border-gray-200">
+                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  Quick Access
+                </div>
+                <div className="pb-2">
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
+                    <Star size={16} className="mr-2 text-yellow-500" />
+                    <span className="text-sm">Favorites</span>
+                  </div>
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
+                    <Clock size={16} className="mr-2 text-gray-500" />
+                    <span className="text-sm">Recent</span>
+                  </div>
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
+                    <Users size={16} className="mr-2 text-gray-500" />
+                    <span className="text-sm">Shared with me</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Content */}
+              <div className="border-b border-gray-200">
+                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  Content
+                </div>
+                <div className="pb-2">
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
+                    <div className="flex items-center">
+                      <BarChart2 size={16} className="mr-2 text-green-600" />
+                      <span className="text-sm">Reports</span>
+                    </div>
+                    <span className="text-xs text-gray-400">12</span>
+                  </div>
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Layout size={16} className="mr-2 text-blue-600" />
+                      <span className="text-sm">Dashboards</span>
+                    </div>
+                    <span className="text-xs text-gray-400">8</span>
+                  </div>
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
+                    <div className="flex items-center">
+                      <FileSearch size={16} className="mr-2 text-orange-600" />
+                      <span className="text-sm">Datasets</span>
+                    </div>
+                    <span className="text-xs text-gray-400">5</span>
+                  </div>
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Filter size={16} className="mr-2 text-purple-600" />
+                      <span className="text-sm">Dataflows</span>
+                    </div>
+                    <span className="text-xs text-gray-400">3</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Items */}
+              <div>
+                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  Recent Items
+                </div>
+                <div className="pb-2">
+                  {recentContent.map((item, index) => (
+                    <ContentItem key={index} {...item} />
+                  ))}
+                </div>
+              </div>
+
+              {/* Workspaces */}
+              <div className="border-t border-gray-200">
+                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  Workspaces
+                </div>
+                <div className="pb-2">
+                  {workspaces.map((workspace, index) => (
+                    <WorkspaceItem 
+                      key={index}
+                      name={workspace.name}
+                      isActive={workspace.name === selectedWorkspace}
+                      hasUpdates={workspace.hasUpdates}
+                      onClick={() => setSelectedWorkspace(workspace.name)}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-gray-200 bg-white">
+              <div className="text-xs text-gray-500">
+                <div className="flex justify-between items-center mb-1">
+                  <span>Storage used</span>
+                  <span>2.1 GB / 10 GB</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-1">
+                  <div className="bg-blue-500 h-1 rounded-full" style={{ width: '21%' }}></div>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 };
