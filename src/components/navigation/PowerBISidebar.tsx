@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
@@ -19,7 +18,12 @@ import {
   Filter,
   MoreHorizontal,
   Menu,
-  X
+  X,
+  FolderOpen,
+  Building2,
+  UserPlus,
+  Shield,
+  Share2
 } from 'lucide-react';
 
 interface NavItemProps {
@@ -136,7 +140,8 @@ const PowerBISidebar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSection, setActiveSection] = useState('home');
   const [isExtendedMenuOpen, setIsExtendedMenuOpen] = useState(false);
-  const [isContentSidebarOpen, setIsContentSidebarOpen] = useState(false);
+  const [isBrowseSidebarOpen, setIsBrowseSidebarOpen] = useState(false);
+  const [isWorkspaceSidebarOpen, setIsWorkspaceSidebarOpen] = useState(false);
   
   const isActive = (path: string) => location.pathname === path;
 
@@ -190,8 +195,14 @@ const PowerBISidebar = () => {
     setIsExtendedMenuOpen(false);
   };
 
-  const toggleContentSidebar = () => {
-    setIsContentSidebarOpen(!isContentSidebarOpen);
+  const toggleBrowseSidebar = () => {
+    setIsBrowseSidebarOpen(!isBrowseSidebarOpen);
+    setIsWorkspaceSidebarOpen(false); // Close workspace sidebar
+  };
+
+  const toggleWorkspaceSidebar = () => {
+    setIsWorkspaceSidebarOpen(!isWorkspaceSidebarOpen);
+    setIsBrowseSidebarOpen(false); // Close browse sidebar
   };
 
   return (
@@ -260,18 +271,19 @@ const PowerBISidebar = () => {
           <NavItem 
             icon={FileSearch} 
             label="Browse" 
+            isActive={isBrowseSidebarOpen}
             onClick={() => {
               setActiveSection('browse');
-              toggleContentSidebar();
+              toggleBrowseSidebar();
             }} 
           />
           <NavItem 
             icon={Layout} 
             label="Workspaces" 
-            isActive={activeSection === 'workspaces'}
+            isActive={isWorkspaceSidebarOpen}
             onClick={() => {
               setActiveSection('workspaces');
-              toggleContentSidebar();
+              toggleWorkspaceSidebar();
             }} 
             badge={2}
           />
@@ -312,35 +324,31 @@ const PowerBISidebar = () => {
         )}
       </div>
 
-      {/* Content Sidebar Popup */}
-      {isContentSidebarOpen && (
+      {/* Browse Content Sidebar */}
+      {isBrowseSidebarOpen && (
         <>
-          {/* Overlay */}
           <div 
             className="fixed inset-0 z-40 bg-black bg-opacity-50" 
-            onClick={() => setIsContentSidebarOpen(false)}
+            onClick={() => setIsBrowseSidebarOpen(false)}
           />
           
-          {/* Content Sidebar */}
           <div className="fixed left-16 top-0 w-64 h-full bg-gray-50 border-r border-gray-200 flex flex-col z-50 animate-slide-in-right shadow-lg">
-            {/* Header */}
             <div className="p-4 border-b border-gray-200 bg-white">
               <div className="flex items-center justify-between mb-3">
-                <h2 className="text-lg font-semibold">Power BI</h2>
+                <h2 className="text-lg font-semibold">Browse Content</h2>
                 <button 
                   className="p-1 hover:bg-gray-100 rounded"
-                  onClick={() => setIsContentSidebarOpen(false)}
+                  onClick={() => setIsBrowseSidebarOpen(false)}
                 >
                   <X size={16} />
                 </button>
               </div>
               
-              {/* Search */}
               <div className="relative">
                 <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input 
                   type="text" 
-                  placeholder="Search..." 
+                  placeholder="Search all content..." 
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
@@ -348,81 +356,66 @@ const PowerBISidebar = () => {
               </div>
             </div>
 
-            {/* Workspace Selector */}
-            <div className="p-4 border-b border-gray-200 bg-white">
-              <div className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded">
-                <div className="flex items-center">
-                  <Layout size={16} className="mr-2 text-gray-500" />
-                  <span className="text-sm font-medium">{selectedWorkspace}</span>
-                </div>
-                <ChevronDown size={16} className="text-gray-400" />
-              </div>
-            </div>
-
-            {/* Navigation Sections */}
             <div className="flex-1 overflow-auto">
-              {/* Quick Access */}
+              {/* Content Type Filters */}
               <div className="border-b border-gray-200">
                 <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  Quick Access
-                </div>
-                <div className="pb-2">
-                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
-                    <Star size={16} className="mr-2 text-yellow-500" />
-                    <span className="text-sm">Favorites</span>
-                  </div>
-                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
-                    <Clock size={16} className="mr-2 text-gray-500" />
-                    <span className="text-sm">Recent</span>
-                  </div>
-                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
-                    <Users size={16} className="mr-2 text-gray-500" />
-                    <span className="text-sm">Shared with me</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Content */}
-              <div className="border-b border-gray-200">
-                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  Content
+                  Content Types
                 </div>
                 <div className="pb-2">
                   <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
                     <div className="flex items-center">
                       <BarChart2 size={16} className="mr-2 text-green-600" />
-                      <span className="text-sm">Reports</span>
+                      <span className="text-sm">All Reports</span>
                     </div>
                     <span className="text-xs text-gray-400">12</span>
                   </div>
                   <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
                     <div className="flex items-center">
                       <Layout size={16} className="mr-2 text-blue-600" />
-                      <span className="text-sm">Dashboards</span>
+                      <span className="text-sm">All Dashboards</span>
                     </div>
                     <span className="text-xs text-gray-400">8</span>
                   </div>
                   <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
                     <div className="flex items-center">
                       <FileSearch size={16} className="mr-2 text-orange-600" />
-                      <span className="text-sm">Datasets</span>
+                      <span className="text-sm">All Datasets</span>
                     </div>
-                    <span className="text-xs text-gray-400">5</span>
-                  </div>
-                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Filter size={16} className="mr-2 text-purple-600" />
-                      <span className="text-sm">Dataflows</span>
-                    </div>
-                    <span className="text-xs text-gray-400">3</span>
+                    <span className="text-xs text-gray-400">15</span>
                   </div>
                 </div>
               </div>
 
-              {/* Recent Items */}
+              {/* Quick Filters */}
+              <div className="border-b border-gray-200">
+                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  Quick Filters
+                </div>
+                <div className="pb-2">
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
+                    <Star size={16} className="mr-2 text-yellow-500" />
+                    <span className="text-sm">Favorited Items</span>
+                  </div>
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
+                    <Clock size={16} className="mr-2 text-gray-500" />
+                    <span className="text-sm">Recently Modified</span>
+                  </div>
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
+                    <Users size={16} className="mr-2 text-gray-500" />
+                    <span className="text-sm">Shared Content</span>
+                  </div>
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
+                    <FolderOpen size={16} className="mr-2 text-gray-500" />
+                    <span className="text-sm">My Content</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Search Results / All Content */}
               <div>
                 <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  Recent Items
+                  All Content
                 </div>
                 <div className="pb-2">
                   {recentContent.map((item, index) => (
@@ -430,11 +423,94 @@ const PowerBISidebar = () => {
                   ))}
                 </div>
               </div>
+            </div>
 
-              {/* Workspaces */}
-              <div className="border-t border-gray-200">
+            <div className="p-4 border-t border-gray-200 bg-white">
+              <div className="text-xs text-gray-500 text-center">
+                Showing content from all workspaces
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Workspace Management Sidebar */}
+      {isWorkspaceSidebarOpen && (
+        <>
+          <div 
+            className="fixed inset-0 z-40 bg-black bg-opacity-50" 
+            onClick={() => setIsWorkspaceSidebarOpen(false)}
+          />
+          
+          <div className="fixed left-16 top-0 w-64 h-full bg-gray-50 border-r border-gray-200 flex flex-col z-50 animate-slide-in-right shadow-lg">
+            <div className="p-4 border-b border-gray-200 bg-white">
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-lg font-semibold">Workspaces</h2>
+                <button 
+                  className="p-1 hover:bg-gray-100 rounded"
+                  onClick={() => setIsWorkspaceSidebarOpen(false)}
+                >
+                  <X size={16} />
+                </button>
+              </div>
+              
+              <div className="flex items-center justify-between cursor-pointer hover:bg-gray-50 p-2 rounded border">
+                <div className="flex items-center">
+                  <Building2 size={16} className="mr-2 text-gray-500" />
+                  <span className="text-sm font-medium">{selectedWorkspace}</span>
+                </div>
+                <ChevronDown size={16} className="text-gray-400" />
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-auto">
+              {/* Workspace Actions */}
+              <div className="border-b border-gray-200">
                 <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  Workspaces
+                  Workspace Actions
+                </div>
+                <div className="pb-2">
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
+                    <Plus size={16} className="mr-2 text-green-600" />
+                    <span className="text-sm">Create Workspace</span>
+                  </div>
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
+                    <UserPlus size={16} className="mr-2 text-blue-600" />
+                    <span className="text-sm">Invite Members</span>
+                  </div>
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
+                    <Settings size={16} className="mr-2 text-gray-600" />
+                    <span className="text-sm">Workspace Settings</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Current Workspace Info */}
+              <div className="border-b border-gray-200">
+                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  Current Workspace
+                </div>
+                <div className="pb-2">
+                  <div className="px-3 py-2 hover:bg-gray-100">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-sm font-medium">{selectedWorkspace}</span>
+                      <Shield size={14} className="text-green-600" />
+                    </div>
+                    <div className="text-xs text-gray-500">Admin • 5 members</div>
+                  </div>
+                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Share2 size={16} className="mr-2 text-gray-500" />
+                      <span className="text-sm">Manage Access</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* All Workspaces */}
+              <div>
+                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  Switch Workspace
                 </div>
                 <div className="pb-2">
                   {workspaces.map((workspace, index) => (
@@ -450,11 +526,10 @@ const PowerBISidebar = () => {
               </div>
             </div>
 
-            {/* Footer */}
             <div className="p-4 border-t border-gray-200 bg-white">
               <div className="text-xs text-gray-500">
                 <div className="flex justify-between items-center mb-1">
-                  <span>Storage used</span>
+                  <span>Workspace Storage</span>
                   <span>2.1 GB / 10 GB</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-1">
