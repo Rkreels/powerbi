@@ -75,7 +75,10 @@ const RecentContent: React.FC<RecentContentProps> = ({
           />
         </div>
         
-        <button className="flex items-center border rounded px-3 py-1.5 text-sm">
+        <button 
+          className="flex items-center border rounded px-3 py-1.5 text-sm hover:bg-gray-50 transition-colors"
+          onClick={() => alert('Filter functionality would be implemented here')}
+        >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
             <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path>
           </svg>
@@ -115,7 +118,13 @@ const RecentContent: React.FC<RecentContentProps> = ({
                 </div>
               </div>
               <div>
-                <button className="p-2 hover:bg-gray-200 rounded">
+                <button 
+                  className="p-2 hover:bg-gray-200 rounded transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    alert('Item options would be implemented here');
+                  }}
+                >
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="1"></circle>
                     <circle cx="19" cy="12" r="1"></circle>

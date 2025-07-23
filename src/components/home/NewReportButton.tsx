@@ -18,7 +18,10 @@ const NewReportButton: React.FC<NewReportButtonProps> = ({ onClick }) => {
           <Plus size={16} className="mr-2" />
           New report
         </Button>
-        <button className="ml-2 p-1.5 border rounded">
+        <button 
+          className="ml-2 p-1.5 border rounded hover:bg-gray-50 transition-colors"
+          onClick={() => alert('Report options would be implemented here')}
+        >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>

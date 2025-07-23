@@ -80,7 +80,11 @@ const Home = () => {
           <div className="p-6 border-b">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold">Recent Items</h2>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/dashboard')}
+              >
                 View All
               </Button>
             </div>

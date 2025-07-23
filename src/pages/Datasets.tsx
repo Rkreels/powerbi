@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Search, Plus, Filter, Download, Upload, Clock, Database, Calendar, RefreshCw, MoreHorizontal } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 
 const Datasets = () => {
+  const navigate = useNavigate();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [datasetsView, setDatasetsView] = useState<'grid' | 'list'>('grid');
   const [selectedDatasets, setSelectedDatasets] = useState<string[]>([]);
@@ -173,7 +175,12 @@ const Datasets = () => {
                 <rect x="1" y="12" width="14" height="2" rx="1" stroke="currentColor" strokeWidth="1.5"/>
               </svg>
             </button>
-            <Button variant="outline" size="sm" className="ml-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="ml-2"
+              onClick={() => alert('Filter functionality would be implemented here')}
+            >
               <Filter size={14} className="mr-1" />
               Filter
             </Button>
@@ -183,15 +190,36 @@ const Datasets = () => {
             {selectedDatasets.length > 0 && (
               <span className="text-sm text-gray-500">{selectedDatasets.length} selected</span>
             )}
-            <Button variant="outline" size="sm" disabled={selectedDatasets.length === 0}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              disabled={selectedDatasets.length === 0}
+              onClick={() => {
+                if (selectedDatasets.length > 0) {
+                  alert(`Refreshing ${selectedDatasets.length} selected datasets`);
+                }
+              }}
+            >
               <RefreshCw size={14} className="mr-1" />
               Refresh
             </Button>
-            <Button variant="outline" size="sm" disabled={selectedDatasets.length === 0}>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              disabled={selectedDatasets.length === 0}
+              onClick={() => {
+                if (selectedDatasets.length > 0) {
+                  alert(`Exporting ${selectedDatasets.length} selected datasets`);
+                }
+              }}
+            >
               <Download size={14} className="mr-1" />
               Export
             </Button>
-            <button className="p-1.5 rounded hover:bg-gray-100">
+            <button 
+              className="p-1.5 rounded hover:bg-gray-100"
+              onClick={() => alert('More options would be implemented here')}
+            >
               <MoreHorizontal size={16} />
             </button>
           </div>
@@ -245,8 +273,18 @@ const Datasets = () => {
                         </span>
                       </td>
                       <td className="px-3 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button className="text-powerbi-primary hover:text-powerbi-secondary px-2">Edit</button>
-                        <button className="text-powerbi-primary hover:text-powerbi-secondary px-2">Open</button>
+                        <button 
+                          className="text-powerbi-primary hover:text-powerbi-secondary px-2"
+                          onClick={() => navigate('/model')}
+                        >
+                          Edit
+                        </button>
+                        <button 
+                          className="text-powerbi-primary hover:text-powerbi-secondary px-2"
+                          onClick={() => navigate('/report')}
+                        >
+                          Open
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -286,7 +324,13 @@ const Datasets = () => {
                       <Clock size={12} className="mr-1" />
                       <span>Last refreshed {dataset.lastRefreshed}</span>
                     </div>
-                    <button className="p-1 hover:bg-gray-100 rounded">
+                    <button 
+                      className="p-1 hover:bg-gray-100 rounded transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        alert('Dataset options would be implemented here');
+                      }}
+                    >
                       <MoreHorizontal size={14} />
                     </button>
                   </div>
@@ -303,14 +347,20 @@ const Datasets = () => {
             <DialogTitle>Connect to data</DialogTitle>
           </DialogHeader>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-            <div className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
+            <div 
+              className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+              onClick={() => alert('File upload would be implemented here')}
+            >
               <div className="w-12 h-12 mb-3 rounded-full bg-powerbi-primary text-white flex items-center justify-center">
                 <Database size={24} />
               </div>
               <h3 className="font-medium mb-2">Files</h3>
               <p className="text-sm text-gray-500">Excel, CSV, XML, Text, and more</p>
             </div>
-            <div className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
+            <div 
+              className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+              onClick={() => alert('Azure connection would be implemented here')}
+            >
               <div className="w-12 h-12 mb-3 rounded-full bg-blue-500 text-white flex items-center justify-center">
                 <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="currentColor"/>
@@ -320,7 +370,10 @@ const Datasets = () => {
               <h3 className="font-medium mb-2">Azure</h3>
               <p className="text-sm text-gray-500">SQL Database, Synapse Analytics, and more</p>
             </div>
-            <div className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
+            <div 
+              className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+              onClick={() => alert('Database connection would be implemented here')}
+            >
               <div className="w-12 h-12 mb-3 rounded-full bg-green-500 text-white flex items-center justify-center">
                 <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <rect x="3" y="3" width="18" height="18" rx="2" fill="currentColor"/>
@@ -330,7 +383,10 @@ const Datasets = () => {
               <h3 className="font-medium mb-2">Database</h3>
               <p className="text-sm text-gray-500">SQL Server, Oracle, MySQL, and more</p>
             </div>
-            <div className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer">
+            <div 
+              className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+              onClick={() => alert('Online services connection would be implemented here')}
+            >
               <div className="w-12 h-12 mb-3 rounded-full bg-purple-500 text-white flex items-center justify-center">
                 <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="12" cy="12" r="10" fill="currentColor"/>

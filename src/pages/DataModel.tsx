@@ -109,7 +109,11 @@ const DataModel = () => {
                 className="pl-8 pr-4 py-2 border rounded-md w-64 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
             </div>
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => alert('Filter functionality would be implemented here')}
+            >
               <Filter size={16} className="mr-1" />
               Filter
             </Button>
@@ -117,7 +121,10 @@ const DataModel = () => {
               <RefreshCw size={16} className="mr-1" />
               Refresh
             </Button>
-            <Button size="sm">
+            <Button 
+              size="sm"
+              onClick={() => alert('Add table functionality would be implemented here')}
+            >
               <Plus size={16} className="mr-1" />
               Add Table
             </Button>
@@ -161,7 +168,11 @@ const DataModel = () => {
               <div className="p-4 border-b">
                 <div className="flex items-center justify-between">
                   <h3 className="font-medium">{selectedTableData?.name} - Fields</h3>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => alert('Configure functionality would be implemented here')}
+                  >
                     <Settings size={16} className="mr-1" />
                     Configure
                   </Button>

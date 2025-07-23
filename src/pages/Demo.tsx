@@ -126,7 +126,22 @@ const Demo = () => {
                 <h3 className="font-medium ml-2">{item.title}</h3>
               </div>
               <p className="text-gray-600 text-sm mb-4">{item.description}</p>
-              <Button variant="outline" size="sm" className="w-full">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full"
+                onClick={() => {
+                  if (item.action === 'Open Demo') {
+                    window.open('/dashboard', '_blank');
+                  } else if (item.action === 'Browse Templates') {
+                    alert('Template gallery would be implemented here');
+                  } else if (item.action === 'Watch Videos') {
+                    alert('Video tutorials would be implemented here');
+                  } else {
+                    alert('Documentation would be implemented here');
+                  }
+                }}
+              >
                 {item.action}
                 <ExternalLink size={14} className="ml-1" />
               </Button>
@@ -183,7 +198,14 @@ const Demo = () => {
                           </div>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => {
+                          setSelectedTutorial(tutorial);
+                          alert(`${tutorial.completed ? 'Reviewing' : 'Starting'} tutorial: ${tutorial.title}`);
+                        }}
+                      >
                         {tutorial.completed ? 'Review' : 'Start'}
                       </Button>
                     </div>

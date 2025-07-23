@@ -46,11 +46,19 @@ const ReportEditor = () => {
         </div>
         
         <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => alert('Undo functionality would be implemented here')}
+          >
             <Undo size={16} className="mr-1" />
             Undo
           </Button>
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => alert('Redo functionality would be implemented here')}
+          >
             <Redo size={16} className="mr-1" />
             Redo
           </Button>
@@ -67,7 +75,11 @@ const ReportEditor = () => {
             <Save size={16} className="mr-1" />
             Save
           </Button>
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => alert('Export functionality would be implemented here')}
+          >
             <Download size={16} className="mr-1" />
             Export
           </Button>

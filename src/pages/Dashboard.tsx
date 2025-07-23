@@ -68,7 +68,11 @@ const Dashboard = () => {
         </div>
         
         <div className="flex items-center space-x-3">
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => alert('Filter functionality would be implemented here')}
+          >
             <Filter size={16} className="mr-1" />
             Filter
           </Button>
@@ -81,15 +85,33 @@ const Dashboard = () => {
             <RefreshCw size={16} className={`mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
             Refresh
           </Button>
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => alert('Export functionality would be implemented here')}
+          >
             <Download size={16} className="mr-1" />
             Export
           </Button>
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => {
+              navigator.share?.({
+                title: 'Power BI Dashboard',
+                text: 'Check out this dashboard',
+                url: window.location.href
+              }) || alert('Sharing functionality would be implemented here');
+            }}
+          >
             <Share2 size={16} className="mr-1" />
             Share
           </Button>
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => alert('More options would be implemented here')}
+          >
             <MoreHorizontal size={16} />
           </Button>
         </div>

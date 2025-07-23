@@ -25,11 +25,17 @@ const PowerBITopBar = () => {
       {/* Left section */}
       <div className="flex items-center">
         <div className="flex items-center space-x-4">
-          <button className="flex items-center text-sm text-gray-700 hover:text-blue-600 font-medium">
+          <button 
+            className="flex items-center text-sm text-gray-700 hover:text-blue-600 font-medium"
+            onClick={() => navigate('/')}
+          >
             <span className="mr-1">Home</span>
           </button>
           <span className="text-gray-300">|</span>
-          <button className="flex items-center text-sm text-gray-600 hover:text-blue-600">
+          <button 
+            className="flex items-center text-sm text-gray-600 hover:text-blue-600"
+            onClick={() => alert('Workspace selector would be implemented here')}
+          >
             <span className="mr-1">My workspace</span>
             <ChevronDown size={14} />
           </button>
@@ -59,12 +65,24 @@ const PowerBITopBar = () => {
           <span>Create</span>
         </button>
         
-        <button className="flex items-center text-gray-600 text-xs rounded px-2 py-1.5 hover:bg-gray-100 transition-colors">
+        <button 
+          className="flex items-center text-gray-600 text-xs rounded px-2 py-1.5 hover:bg-gray-100 transition-colors"
+          onClick={() => navigate('/datasets')}
+        >
           <Upload size={14} className="mr-1" />
           <span>Upload</span>
         </button>
         
-        <button className="flex items-center text-gray-600 text-xs rounded px-2 py-1.5 hover:bg-gray-100 transition-colors">
+        <button 
+          className="flex items-center text-gray-600 text-xs rounded px-2 py-1.5 hover:bg-gray-100 transition-colors"
+          onClick={() => {
+            navigator.share?.({
+              title: 'Power BI Dashboard',
+              text: 'Check out this dashboard',
+              url: window.location.href
+            }) || alert('Sharing functionality would be implemented here');
+          }}
+        >
           <Share2 size={14} className="mr-1" />
           <span>Share</span>
         </button>
@@ -72,11 +90,17 @@ const PowerBITopBar = () => {
         <div className="w-px h-6 bg-gray-300 mx-2"></div>
         
         {/* Utility buttons */}
-        <button className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+        <button 
+          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+          onClick={() => alert('Filter functionality would be implemented here')}
+        >
           <Filter size={16} />
         </button>
         
-        <button className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors relative">
+        <button 
+          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors relative"
+          onClick={() => alert('Notifications panel would be implemented here')}
+        >
           <Bell size={16} />
           {notifications > 0 && (
             <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
@@ -85,19 +109,31 @@ const PowerBITopBar = () => {
           )}
         </button>
         
-        <button className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+        <button 
+          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+          onClick={() => navigate('/settings')}
+        >
           <Settings size={16} />
         </button>
         
-        <button className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+        <button 
+          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+          onClick={() => alert('Download functionality would be implemented here')}
+        >
           <Download size={16} />
         </button>
         
-        <button className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+        <button 
+          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+          onClick={() => navigate('/demo')}
+        >
           <HelpCircle size={16} />
         </button>
         
-        <button className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors">
+        <button 
+          className="p-1.5 text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+          onClick={() => alert('More options would be implemented here')}
+        >
           <MoreVertical size={16} />
         </button>
         
@@ -110,7 +146,10 @@ const PowerBITopBar = () => {
             <div className="text-gray-500">59 days left</div>
           </div>
           
-          <button className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium hover:bg-blue-700 transition-colors">
+          <button 
+            className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium hover:bg-blue-700 transition-colors"
+            onClick={() => navigate('/settings')}
+          >
             <User size={14} />
           </button>
         </div>

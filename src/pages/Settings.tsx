@@ -168,7 +168,12 @@ const Settings = () => {
                         <div className="font-medium">{userName}</div>
                         <div className="text-sm text-gray-500">{email}</div>
                       </div>
-                      <Button variant="outline" size="sm" className="ml-auto">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="ml-auto"
+                        onClick={() => alert('Photo upload functionality would be implemented here')}
+                      >
                         Change Photo
                       </Button>
                     </div>
@@ -214,7 +219,10 @@ const Settings = () => {
                     
                     <div>
                       <label className="block text-sm font-medium mb-2">Password</label>
-                      <Button variant="outline">
+                      <Button 
+                        variant="outline"
+                        onClick={() => alert('Change password functionality would be implemented here')}
+                      >
                         Change Password
                       </Button>
                     </div>
@@ -262,7 +270,11 @@ const Settings = () => {
                           <div className="bg-powerbi-primary h-2 rounded-full" style={{ width: '24%' }}></div>
                         </div>
                       </div>
-                      <Button variant="outline" size="sm">
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => alert('Storage management would be implemented here')}
+                      >
                         Manage Storage
                       </Button>
                     </div>
@@ -468,7 +480,15 @@ const Settings = () => {
               )}
               
               <div className="mt-8 border-t pt-4 flex justify-end">
-                <Button variant="outline" className="mr-2">
+                <Button 
+                  variant="outline" 
+                  className="mr-2"
+                  onClick={() => {
+                    if (confirm('Are you sure you want to reset all settings to defaults?')) {
+                      alert('Settings reset to defaults');
+                    }
+                  }}
+                >
                   Reset Defaults
                 </Button>
                 <Button onClick={handleSaveSettings}>
