@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   Home,
@@ -23,8 +23,18 @@ import {
   Building2,
   UserPlus,
   Shield,
-  Share2
+  Share2,
+  Edit,
+  Trash2,
+  Database,
+  Download,
+  Upload
 } from 'lucide-react';
+import { CreateWorkspaceDialog } from '@/components/dialogs/CreateWorkspaceDialog';
+import { CreateDatasetDialog } from '@/components/dialogs/CreateDatasetDialog';
+import { WorkspaceSettingsDialog } from '@/components/dialogs/WorkspaceSettingsDialog';
+import { dataService } from '@/services/dataService';
+import { toast } from '@/hooks/use-toast';
 
 interface NavItemProps {
   icon: React.ElementType;
@@ -142,8 +152,53 @@ const PowerBISidebar = () => {
   const [isExtendedMenuOpen, setIsExtendedMenuOpen] = useState(false);
   const [isBrowseSidebarOpen, setIsBrowseSidebarOpen] = useState(false);
   const [isWorkspaceSidebarOpen, setIsWorkspaceSidebarOpen] = useState(false);
+  const [contentFilter, setContentFilter] = useState('all');
+  const [workspaces, setWorkspaces] = useState(dataService.getWorkspaces());
+  const [allContent, setAllContent] = useState<any[]>([]);
   
   const isActive = (path: string) => location.pathname === path;
+
+  // Load all content on component mount
+  useEffect(() => {
+    const reports = dataService.getReports().map(r => ({
+      id: r.id,
+      title: r.name,
+      type: 'report' as const,
+      lastModified: new Date(r.modified).toLocaleDateString(),
+      owner: r.owner,
+      isShared: false,
+      isFavorite: false
+    }));
+
+    const dashboards = dataService.getDashboards().map(d => ({
+      id: d.id,
+      title: d.name,
+      type: 'dashboard' as const,
+      lastModified: new Date(d.modified).toLocaleDateString(),
+      owner: d.owner,
+      isShared: false,
+      isFavorite: false
+    }));
+
+    const datasets = dataService.getDatasets().map(d => ({
+      id: d.id,
+      title: d.name,
+      type: 'dataset' as const,
+      lastModified: new Date(d.modified).toLocaleDateString(),
+      owner: d.owner,
+      isShared: false,
+      isFavorite: false
+    }));
+
+    setAllContent([...reports, ...dashboards, ...datasets]);
+  }, []);
+
+  // Filter content based on search and filters
+  const filteredContent = allContent.filter(item => {
+    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesFilter = contentFilter === 'all' || item.type === contentFilter;
+    return matchesSearch && matchesFilter;
+  });
 
   const extendedMenuItems = [
     { icon: Home, label: 'Home', path: '/' },
@@ -154,37 +209,70 @@ const PowerBISidebar = () => {
     { icon: HelpCircle, label: 'Help & Support', path: '/demo' },
   ];
 
-  const workspaces = [
-    { name: 'My workspace', hasUpdates: true },
-    { name: 'Sales Team', hasUpdates: false },
-    { name: 'Marketing Analytics', hasUpdates: true },
-    { name: 'Finance Reports', hasUpdates: false },
-  ];
+  // Add hasUpdates to workspaces for compatibility
+  const workspacesWithUpdates = workspaces.map(workspace => ({
+    ...workspace,
+    hasUpdates: Math.random() > 0.5 // Random updates for demo
+  }));
 
-  const recentContent = [
-    {
-      title: 'Sales Overview Dashboard',
-      type: 'dashboard' as const,
-      lastModified: '2 hours ago',
-      owner: 'You',
-      isFavorite: true
-    },
-    {
-      title: 'Monthly Revenue Report',
-      type: 'report' as const,
-      lastModified: '1 day ago',
-      owner: 'John Smith',
-      isShared: true,
-      isFavorite: false
-    },
-    {
-      title: 'Customer Analytics',
-      type: 'dataset' as const,
-      lastModified: '3 days ago',
-      owner: 'You',
-      isFavorite: true
+  // Content type counts
+  const contentCounts = {
+    reports: allContent.filter(item => item.type === 'report').length,
+    dashboards: allContent.filter(item => item.type === 'dashboard').length,
+    datasets: allContent.filter(item => item.type === 'dataset').length
+  };
+
+  // Handle content item actions
+  const handleContentAction = (item: any, action: string) => {
+    switch (action) {
+      case 'edit':
+        if (item.type === 'report') navigate('/report');
+        else if (item.type === 'dashboard') navigate('/dashboard');
+        else if (item.type === 'dataset') navigate('/datasets');
+        break;
+      case 'delete':
+        if (item.type === 'report') dataService.deleteReport(item.id);
+        else if (item.type === 'dashboard') dataService.deleteDashboard(item.id);
+        else if (item.type === 'dataset') dataService.deleteDataset(item.id);
+        
+        // Refresh content
+        setAllContent(prev => prev.filter(c => c.id !== item.id));
+        toast({
+          title: "Deleted",
+          description: `${item.type} "${item.title}" has been deleted`,
+        });
+        break;
+      case 'favorite':
+        toast({
+          title: "Favorited",
+          description: `${item.title} added to favorites`,
+        });
+        break;
     }
-  ];
+  };
+
+  const handleWorkspaceAction = (action: string) => {
+    switch (action) {
+      case 'create':
+        // This will be handled by the CreateWorkspaceDialog
+        break;
+      case 'invite':
+        toast({
+          title: "Invite Members",
+          description: "Invite functionality would open here",
+        });
+        break;
+      case 'settings':
+        // This will be handled by the WorkspaceSettingsDialog
+        break;
+      case 'access':
+        toast({
+          title: "Manage Access",
+          description: "Access management would open here",
+        });
+        break;
+    }
+  };
 
   const toggleExtendedMenu = () => {
     setIsExtendedMenuOpen(!isExtendedMenuOpen);
@@ -357,75 +445,137 @@ const PowerBISidebar = () => {
             </div>
 
             <div className="flex-1 overflow-auto">
-              {/* Content Type Filters */}
-              <div className="border-b border-gray-200">
-                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  Content Types
+                {/* Content Type Filters */}
+                <div className="border-b border-gray-200">
+                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    Content Types
+                  </div>
+                  <div className="pb-2">
+                    <div 
+                      className={`px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
+                        contentFilter === 'report' ? 'bg-blue-50' : ''
+                      }`}
+                      onClick={() => setContentFilter(contentFilter === 'report' ? 'all' : 'report')}
+                    >
+                      <div className="flex items-center">
+                        <BarChart2 size={16} className="mr-2 text-green-600" />
+                        <span className="text-sm">All Reports</span>
+                      </div>
+                      <span className="text-xs text-gray-400">{contentCounts.reports}</span>
+                    </div>
+                    <div 
+                      className={`px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
+                        contentFilter === 'dashboard' ? 'bg-blue-50' : ''
+                      }`}
+                      onClick={() => setContentFilter(contentFilter === 'dashboard' ? 'all' : 'dashboard')}
+                    >
+                      <div className="flex items-center">
+                        <Layout size={16} className="mr-2 text-blue-600" />
+                        <span className="text-sm">All Dashboards</span>
+                      </div>
+                      <span className="text-xs text-gray-400">{contentCounts.dashboards}</span>
+                    </div>
+                    <div 
+                      className={`px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between ${
+                        contentFilter === 'dataset' ? 'bg-blue-50' : ''
+                      }`}
+                      onClick={() => setContentFilter(contentFilter === 'dataset' ? 'all' : 'dataset')}
+                    >
+                      <div className="flex items-center">
+                        <FileSearch size={16} className="mr-2 text-orange-600" />
+                        <span className="text-sm">All Datasets</span>
+                      </div>
+                      <span className="text-xs text-gray-400">{contentCounts.datasets}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="pb-2">
-                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <BarChart2 size={16} className="mr-2 text-green-600" />
-                      <span className="text-sm">All Reports</span>
-                    </div>
-                    <span className="text-xs text-gray-400">12</span>
-                  </div>
-                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Layout size={16} className="mr-2 text-blue-600" />
-                      <span className="text-sm">All Dashboards</span>
-                    </div>
-                    <span className="text-xs text-gray-400">8</span>
-                  </div>
-                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <FileSearch size={16} className="mr-2 text-orange-600" />
-                      <span className="text-sm">All Datasets</span>
-                    </div>
-                    <span className="text-xs text-gray-400">15</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Quick Filters */}
-              <div className="border-b border-gray-200">
-                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  Quick Filters
+                {/* Quick Filters */}
+                <div className="border-b border-gray-200">
+                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                    Quick Filters
+                  </div>
+                  <div className="pb-2">
+                    <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center"
+                         onClick={() => toast({ title: "Filter", description: "Showing favorited items" })}>
+                      <Star size={16} className="mr-2 text-yellow-500" />
+                      <span className="text-sm">Favorited Items</span>
+                    </div>
+                    <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center"
+                         onClick={() => toast({ title: "Filter", description: "Showing recently modified items" })}>
+                      <Clock size={16} className="mr-2 text-gray-500" />
+                      <span className="text-sm">Recently Modified</span>
+                    </div>
+                    <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center"
+                         onClick={() => toast({ title: "Filter", description: "Showing shared content" })}>
+                      <Users size={16} className="mr-2 text-gray-500" />
+                      <span className="text-sm">Shared Content</span>
+                    </div>
+                    <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center"
+                         onClick={() => toast({ title: "Filter", description: "Showing my content" })}>
+                      <FolderOpen size={16} className="mr-2 text-gray-500" />
+                      <span className="text-sm">My Content</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="pb-2">
-                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
-                    <Star size={16} className="mr-2 text-yellow-500" />
-                    <span className="text-sm">Favorited Items</span>
-                  </div>
-                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
-                    <Clock size={16} className="mr-2 text-gray-500" />
-                    <span className="text-sm">Recently Modified</span>
-                  </div>
-                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
-                    <Users size={16} className="mr-2 text-gray-500" />
-                    <span className="text-sm">Shared Content</span>
-                  </div>
-                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
-                    <FolderOpen size={16} className="mr-2 text-gray-500" />
-                    <span className="text-sm">My Content</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Search Results / All Content */}
-              <div>
-                <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                  All Content
+                {/* Search Results / All Content */}
+                <div>
+                  <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide flex items-center justify-between">
+                    <span>All Content</span>
+                    <span className="text-xs text-gray-400">({filteredContent.length})</span>
+                  </div>
+                  <div className="pb-2">
+                    {filteredContent.length > 0 ? (
+                      filteredContent.map((item, index) => (
+                        <div key={index} className="px-3 py-2 hover:bg-gray-100 cursor-pointer group">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center flex-1 min-w-0" onClick={() => handleContentAction(item, 'edit')}>
+                              {item.type === 'report' && <BarChart2 size={16} className="text-green-600" />}
+                              {item.type === 'dashboard' && <Layout size={16} className="text-blue-600" />}
+                              {item.type === 'dataset' && <FileSearch size={16} className="text-orange-600" />}
+                              <div className="ml-2 flex-1 min-w-0">
+                                <div className="text-sm font-medium truncate">{item.title}</div>
+                                <div className="text-xs text-gray-500">
+                                  {item.lastModified} • {item.owner}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button 
+                                onClick={() => handleContentAction(item, 'favorite')}
+                                className="p-1 hover:bg-gray-200 rounded"
+                              >
+                                <Star size={14} className="text-gray-400" />
+                              </button>
+                              <button 
+                                onClick={() => handleContentAction(item, 'delete')}
+                                className="p-1 hover:bg-gray-200 rounded ml-1"
+                              >
+                                <Trash2 size={14} className="text-gray-400" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="px-3 py-4 text-center text-gray-500 text-sm">
+                        No content found
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="pb-2">
-                  {recentContent.map((item, index) => (
-                    <ContentItem key={index} {...item} />
-                  ))}
-                </div>
-              </div>
             </div>
 
-            <div className="p-4 border-t border-gray-200 bg-white">
+            <div className="p-4 border-t border-gray-200 bg-white space-y-2">
+              <CreateDatasetDialog 
+                trigger={
+                  <button className="w-full bg-blue-600 text-white py-2 px-4 rounded text-sm hover:bg-blue-700 transition-colors">
+                    <Plus size={16} className="mr-2 inline" />
+                    Create Dataset
+                  </button>
+                }
+              />
               <div className="text-xs text-gray-500 text-center">
                 Showing content from all workspaces
               </div>
@@ -469,20 +619,39 @@ const PowerBISidebar = () => {
                 <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wide">
                   Workspace Actions
                 </div>
-                <div className="pb-2">
-                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
-                    <Plus size={16} className="mr-2 text-green-600" />
-                    <span className="text-sm">Create Workspace</span>
-                  </div>
-                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
-                    <UserPlus size={16} className="mr-2 text-blue-600" />
-                    <span className="text-sm">Invite Members</span>
-                  </div>
-                  <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
-                    <Settings size={16} className="mr-2 text-gray-600" />
-                    <span className="text-sm">Workspace Settings</span>
-                  </div>
-                </div>
+                 <div className="pb-2">
+                   <CreateWorkspaceDialog 
+                     trigger={
+                       <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center w-full text-left">
+                         <Plus size={16} className="mr-2 text-green-600" />
+                         <span className="text-sm">Create Workspace</span>
+                       </div>
+                     }
+                     onWorkspaceCreated={(workspace) => {
+                       setWorkspaces([...workspaces, workspace]);
+                       toast({
+                         title: "Success",
+                         description: `Workspace "${workspace.name}" created and added to your list`,
+                       });
+                     }}
+                   />
+                   <div 
+                     className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center"
+                     onClick={() => handleWorkspaceAction('invite')}
+                   >
+                     <UserPlus size={16} className="mr-2 text-blue-600" />
+                     <span className="text-sm">Invite Members</span>
+                   </div>
+                   <WorkspaceSettingsDialog 
+                     workspaceName={selectedWorkspace}
+                     trigger={
+                       <div className="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center w-full text-left">
+                         <Settings size={16} className="mr-2 text-gray-600" />
+                         <span className="text-sm">Workspace Settings</span>
+                       </div>
+                     }
+                   />
+                 </div>
               </div>
 
               {/* Current Workspace Info */}
@@ -513,7 +682,7 @@ const PowerBISidebar = () => {
                   Switch Workspace
                 </div>
                 <div className="pb-2">
-                  {workspaces.map((workspace, index) => (
+                  {workspacesWithUpdates.map((workspace, index) => (
                     <WorkspaceItem 
                       key={index}
                       name={workspace.name}
