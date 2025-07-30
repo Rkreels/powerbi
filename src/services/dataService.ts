@@ -291,25 +291,151 @@ class DataService {
       .slice(0, 10);
   }
 
+// Sample realistic data
+  getSampleData(): { datasets: any[], sampleVisualizations: any[] } {
+    const sampleDatasets = [
+      {
+        name: "Sales Data",
+        data: [
+          { month: 'Jan', revenue: 65000, units: 120, region: 'North', category: 'Electronics' },
+          { month: 'Feb', revenue: 59000, units: 110, region: 'South', category: 'Electronics' },
+          { month: 'Mar', revenue: 80000, units: 150, region: 'East', category: 'Electronics' },
+          { month: 'Apr', revenue: 81000, units: 160, region: 'West', category: 'Electronics' },
+          { month: 'May', revenue: 96000, units: 180, region: 'North', category: 'Clothing' },
+          { month: 'Jun', revenue: 78000, units: 140, region: 'South', category: 'Clothing' },
+          { month: 'Jul', revenue: 103000, units: 200, region: 'East', category: 'Home' },
+          { month: 'Aug', revenue: 89000, units: 170, region: 'West', category: 'Home' },
+          { month: 'Sep', revenue: 91000, units: 175, region: 'North', category: 'Sports' },
+          { month: 'Oct', revenue: 87000, units: 165, region: 'South', category: 'Sports' },
+          { month: 'Nov', revenue: 102000, units: 195, region: 'East', category: 'Books' },
+          { month: 'Dec', revenue: 115000, units: 220, region: 'West', category: 'Books' }
+        ]
+      },
+      {
+        name: "Customer Data",
+        data: [
+          { customerId: 'C001', name: 'Alice Johnson', age: 28, city: 'New York', purchases: 5, totalSpent: 1200 },
+          { customerId: 'C002', name: 'Bob Smith', age: 34, city: 'Los Angeles', purchases: 8, totalSpent: 2100 },
+          { customerId: 'C003', name: 'Carol Davis', age: 45, city: 'Chicago', purchases: 12, totalSpent: 3400 },
+          { customerId: 'C004', name: 'David Wilson', age: 31, city: 'Houston', purchases: 3, totalSpent: 890 },
+          { customerId: 'C005', name: 'Eva Brown', age: 29, city: 'Phoenix', purchases: 7, totalSpent: 1650 },
+          { customerId: 'C006', name: 'Frank Miller', age: 52, city: 'Philadelphia', purchases: 15, totalSpent: 4200 },
+          { customerId: 'C007', name: 'Grace Lee', age: 26, city: 'San Antonio', purchases: 4, totalSpent: 980 }
+        ]
+      },
+      {
+        name: "Product Performance",
+        data: [
+          { productId: 'P001', name: 'Laptop Pro', category: 'Electronics', price: 1299, sales: 45, rating: 4.5 },
+          { productId: 'P002', name: 'Smartphone X', category: 'Electronics', price: 899, sales: 78, rating: 4.2 },
+          { productId: 'P003', name: 'Wireless Headphones', category: 'Electronics', price: 199, sales: 156, rating: 4.7 },
+          { productId: 'P004', name: 'Running Shoes', category: 'Sports', price: 129, sales: 89, rating: 4.1 },
+          { productId: 'P005', name: 'Coffee Maker', category: 'Home', price: 89, sales: 67, rating: 4.3 },
+          { productId: 'P006', name: 'Desk Chair', category: 'Home', price: 249, sales: 34, rating: 4.0 }
+        ]
+      }
+    ];
+
+    const sampleVisualizations = [
+      {
+        id: 'v1',
+        type: 'LineChart',
+        title: 'Revenue Trend',
+        datasetName: 'Sales Data',
+        config: {
+          xAxis: 'month',
+          yAxis: 'revenue',
+          color: '#8884d8'
+        }
+      },
+      {
+        id: 'v2',
+        type: 'BarChart', 
+        title: 'Units Sold by Month',
+        datasetName: 'Sales Data',
+        config: {
+          xAxis: 'month',
+          yAxis: 'units',
+          color: '#82ca9d'
+        }
+      },
+      {
+        id: 'v3',
+        type: 'PieChart',
+        title: 'Revenue by Region',
+        datasetName: 'Sales Data',
+        config: {
+          nameField: 'region',
+          valueField: 'revenue'
+        }
+      }
+    ];
+
+    return { datasets: sampleDatasets, sampleVisualizations };
+  }
+
+  // Enhanced data filtering and querying
+  queryData(datasetName: string, filters?: any): any[] {
+    const { datasets } = this.getSampleData();
+    const dataset = datasets.find(ds => ds.name === datasetName);
+    if (!dataset) return [];
+
+    let data = [...dataset.data];
+    
+    if (filters) {
+      if (filters.category) {
+        data = data.filter(item => item.category === filters.category);
+      }
+      if (filters.region) {
+        data = data.filter(item => item.region === filters.region);
+      }
+      if (filters.dateRange) {
+        // Implement date filtering logic
+      }
+    }
+
+    return data;
+  }
+
   // Initialize with sample data
   initializeSampleData(): void {
     if (this.getReports().length === 0) {
+      const { sampleVisualizations } = this.getSampleData();
+      
       this.createReport({
-        name: 'Sales Performance Report',
-        description: 'Monthly sales analysis and trends',
+        name: 'Sales Performance Dashboard',
+        description: 'Comprehensive sales analysis with multiple visualizations',
         owner: 'John Doe',
         workspace: 'My Workspace',
+        isPublished: true,
+        visualizations: sampleVisualizations.slice(0, 2)
+      });
+
+      this.createReport({
+        name: 'Customer Analytics Report',
+        description: 'Customer behavior and segmentation analysis',
+        owner: 'Jane Smith',
+        workspace: 'Sales Team',
+        isPublished: false,
+        visualizations: [sampleVisualizations[2]]
+      });
+
+      this.createReport({
+        name: 'Product Performance Analysis',
+        description: 'Detailed product sales and rating analysis',
+        owner: 'Mike Johnson',
+        workspace: 'Product Team',
         isPublished: true,
         visualizations: []
       });
 
       this.createReport({
-        name: 'Customer Analytics',
-        description: 'Customer behavior and segmentation analysis',
-        owner: 'Jane Smith',
+        name: 'Regional Sales Comparison',
+        description: 'Compare sales performance across different regions',
+        owner: 'Sarah Wilson',
         workspace: 'My Workspace',
-        isPublished: false,
-        visualizations: []
+        isPublished: true,
+        visualizations: [sampleVisualizations[0], sampleVisualizations[2]]
       });
     }
 
