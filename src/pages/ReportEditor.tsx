@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import DataPane from '@/components/reportEditor/DataPane';
 import VisualizationPane from '@/components/reportEditor/VisualizationPane';
 import FilterPane from '@/components/reportEditor/FilterPane';
-import ReportCanvas from '@/components/reportEditor/ReportCanvas';
+import { EnhancedReportCanvas } from '@/components/reportEditor/EnhancedReportCanvas';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -498,7 +498,7 @@ const ReportEditor = () => {
         )}
 
         {/* Main Canvas */}
-        <ReportCanvas selectedTemplate={selectedTemplate} />
+        <EnhancedReportCanvas selectedTemplate={selectedTemplate} />
       </div>
     </div>
   );
