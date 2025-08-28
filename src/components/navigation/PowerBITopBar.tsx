@@ -120,9 +120,9 @@ const PowerBITopBar = () => {
         <div className="flex items-center space-x-4">
           <button 
             className="flex items-center text-sm text-gray-700 hover:text-blue-600 font-medium"
-            onClick={() => navigate('/')}
+            onClick={() => window.open('https://skillsim.vercel.app/dashboard', '_self')}
           >
-            <span className="mr-1">Home</span>
+            <span className="mr-1">Master Dashboard</span>
           </button>
           <span className="text-gray-300">|</span>
           <DropdownMenu>

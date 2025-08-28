@@ -12,8 +12,8 @@ import Settings from "./pages/Settings";
 import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
-import PowerBISidebar from "./components/navigation/PowerBISidebar";
-import PowerBITopBar from "./components/navigation/PowerBITopBar";
+import EnhancedPowerBISidebar from "./components/navigation/EnhancedPowerBISidebar";
+import EnhancedPowerBITopBar from "./components/navigation/EnhancedPowerBITopBar";
 
 const queryClient = new QueryClient();
 
@@ -24,10 +24,10 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <div className="flex h-screen w-full overflow-hidden bg-white">
-          <PowerBISidebar />
+          <EnhancedPowerBISidebar />
           
           <div className="flex-1 flex flex-col overflow-hidden">
-            <PowerBITopBar />
+            <EnhancedPowerBITopBar />
             
             <div className="flex-1 overflow-auto bg-gray-50">
               <Routes>
