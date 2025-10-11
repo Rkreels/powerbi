@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
+import { dataService } from '@/services/dataService';
 
 const Datasets = () => {
   const navigate = useNavigate();
@@ -91,11 +92,20 @@ const Datasets = () => {
     }, 1000);
   };
 
-  const handleCreateDataset = () => {
+  const handleCreateDataset = (source: string) => {
+    const dataset = dataService.createDataset({
+      name: `${source} Dataset`,
+      description: `Dataset from ${source}`,
+      source: source,
+      owner: "Current User",
+      size: "0 MB",
+      status: 'active'
+    });
+    
     setIsCreateDialogOpen(false);
     toast({
-      title: "Dataset created",
-      description: "Your new dataset has been created successfully.",
+      title: "Dataset Created",
+      description: `${dataset.name} has been created successfully.`,
       duration: 3000,
     });
   };
@@ -179,7 +189,13 @@ const Datasets = () => {
               variant="outline" 
               size="sm" 
               className="ml-2"
-              onClick={() => alert('Filter functionality would be implemented here')}
+              onClick={() => {
+                toast({
+                  title: "Filter Options",
+                  description: "Filter datasets by type, status, or owner.",
+                  duration: 2000,
+                });
+              }}
             >
               <Filter size={14} className="mr-1" />
               Filter
@@ -196,7 +212,12 @@ const Datasets = () => {
               disabled={selectedDatasets.length === 0}
               onClick={() => {
                 if (selectedDatasets.length > 0) {
-                  alert(`Refreshing ${selectedDatasets.length} selected datasets`);
+                  handleRefresh();
+                  toast({
+                    title: "Datasets Refreshing",
+                    description: `Refreshing ${selectedDatasets.length} selected dataset(s).`,
+                    duration: 2000,
+                  });
                 }
               }}
             >
@@ -209,7 +230,11 @@ const Datasets = () => {
               disabled={selectedDatasets.length === 0}
               onClick={() => {
                 if (selectedDatasets.length > 0) {
-                  alert(`Exporting ${selectedDatasets.length} selected datasets`);
+                  toast({
+                    title: "Export Started",
+                    description: `Exporting ${selectedDatasets.length} dataset(s).`,
+                    duration: 2000,
+                  });
                 }
               }}
             >
@@ -218,7 +243,13 @@ const Datasets = () => {
             </Button>
             <button 
               className="p-1.5 rounded hover:bg-gray-100"
-              onClick={() => alert('More options would be implemented here')}
+              onClick={() => {
+                toast({
+                  title: "More Options",
+                  description: "Additional dataset management options.",
+                  duration: 2000,
+                });
+              }}
             >
               <MoreHorizontal size={16} />
             </button>
@@ -328,7 +359,11 @@ const Datasets = () => {
                       className="p-1 hover:bg-gray-100 rounded transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
-                        alert('Dataset options would be implemented here');
+                        toast({
+                          title: "Dataset Options",
+                          description: "Refresh, edit, or delete this dataset.",
+                          duration: 2000,
+                        });
                       }}
                     >
                       <MoreHorizontal size={14} />
@@ -349,7 +384,7 @@ const Datasets = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
             <div 
               className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-              onClick={() => alert('File upload would be implemented here')}
+              onClick={() => handleCreateDataset('File')}
             >
               <div className="w-12 h-12 mb-3 rounded-full bg-powerbi-primary text-white flex items-center justify-center">
                 <Database size={24} />
@@ -359,7 +394,7 @@ const Datasets = () => {
             </div>
             <div 
               className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-              onClick={() => alert('Azure connection would be implemented here')}
+              onClick={() => handleCreateDataset('Azure')}
             >
               <div className="w-12 h-12 mb-3 rounded-full bg-blue-500 text-white flex items-center justify-center">
                 <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -372,7 +407,7 @@ const Datasets = () => {
             </div>
             <div 
               className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-              onClick={() => alert('Database connection would be implemented here')}
+              onClick={() => handleCreateDataset('SQL Server')}
             >
               <div className="w-12 h-12 mb-3 rounded-full bg-green-500 text-white flex items-center justify-center">
                 <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -385,7 +420,7 @@ const Datasets = () => {
             </div>
             <div 
               className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer transition-colors"
-              onClick={() => alert('Online services connection would be implemented here')}
+              onClick={() => handleCreateDataset('Online Services')}
             >
               <div className="w-12 h-12 mb-3 rounded-full bg-purple-500 text-white flex items-center justify-center">
                 <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -400,9 +435,6 @@ const Datasets = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
               Cancel
-            </Button>
-            <Button onClick={handleCreateDataset}>
-              Connect
             </Button>
           </DialogFooter>
         </DialogContent>

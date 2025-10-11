@@ -12,14 +12,21 @@ import Settings from "./pages/Settings";
 import Demo from "./pages/Demo";
 import NotFound from "./pages/NotFound";
 import Home from "./pages/Home";
+import AdvancedVisualizations from "./components/visualizations/AdvancedVisualizations";
+import PowerQueryEditor from "./components/powerquery/PowerQueryEditor";
+import PowerBIAI from "./components/ai/PowerBIAI";
+import MobilePowerBI from "./components/mobile/MobilePowerBI";
+import AdvancedDataModeling from "./components/datamodel/AdvancedDataModeling";
 import EnhancedPowerBISidebar from "./components/navigation/EnhancedPowerBISidebar";
 import EnhancedPowerBITopBar from "./components/navigation/EnhancedPowerBITopBar";
+import { InitializeData } from "./components/InitializeData";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
+      <InitializeData />
       <Toaster />
       <Sonner />
       <BrowserRouter>
@@ -34,8 +41,14 @@ const App = () => (
                 <Route path="/" element={<Home />} />
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/report" element={<ReportEditor />} />
+                <Route path="/report/:id" element={<ReportEditor />} />
                 <Route path="/datasets" element={<Datasets />} />
                 <Route path="/model" element={<DataModel />} />
+                <Route path="/model/advanced" element={<AdvancedDataModeling />} />
+                <Route path="/visualizations" element={<AdvancedVisualizations />} />
+                <Route path="/power-query" element={<PowerQueryEditor />} />
+                <Route path="/ai-assistant" element={<PowerBIAI />} />
+                <Route path="/mobile" element={<MobilePowerBI />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/demo" element={<Demo />} />
                 <Route path="*" element={<NotFound />} />
