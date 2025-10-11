@@ -396,7 +396,6 @@ const AdvancedVisualizations: React.FC = () => {
                       <Treemap
                         data={treemapData}
                         dataKey="size"
-                        ratio={4/3}
                         stroke="#fff"
                         content={({ name, size }: any) => (
                           <div className="p-2">
