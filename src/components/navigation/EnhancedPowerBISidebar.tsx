@@ -46,6 +46,7 @@ const EnhancedPowerBISidebar = () => {
       id: r.id,
       title: r.name,
       type: 'report' as const,
+      workspace: r.workspace,
       lastModified: new Date(r.modified).toLocaleDateString(),
       owner: r.owner,
       isShared: Math.random() > 0.5,
@@ -56,6 +57,7 @@ const EnhancedPowerBISidebar = () => {
       id: d.id,
       title: d.name,
       type: 'dashboard' as const,
+      workspace: d.workspace,
       lastModified: new Date(d.modified).toLocaleDateString(),
       owner: d.owner,
       isShared: Math.random() > 0.5,
@@ -66,6 +68,7 @@ const EnhancedPowerBISidebar = () => {
       id: d.id,
       title: d.name,
       type: 'dataset' as const,
+      workspace: 'My Workspace', // datasets don't have workspace in schema
       lastModified: new Date(d.modified).toLocaleDateString(),
       owner: d.owner,
       isShared: Math.random() > 0.5,
@@ -130,32 +133,44 @@ const EnhancedPowerBISidebar = () => {
   const handleContentAction = (item: any, action: string) => {
     switch (action) {
       case 'open':
-        if (item.type === 'report') navigate('/report');
+        if (item.type === 'report') navigate(`/report/${item.id}`);
         else if (item.type === 'dashboard') navigate('/dashboard');
         else if (item.type === 'dataset') navigate('/datasets');
         break;
       case 'edit':
-        toast({
-          title: "Edit Mode",
-          description: `Opening ${item.title} for editing`,
-        });
-        if (item.type === 'report') navigate('/report');
+        if (item.type === 'report') navigate(`/report/${item.id}`);
         else if (item.type === 'dashboard') navigate('/dashboard');
         break;
       case 'share':
-        navigator.clipboard.writeText(`${window.location.origin}/${item.type}/${item.id}`);
-        toast({
-          title: "Share Link Copied",
-          description: `Link to ${item.title} copied to clipboard`,
-        });
+        const shareUrl = `${window.location.origin}/${item.type}/${item.id}`;
+        if (navigator.share) {
+          navigator.share({
+            title: item.title,
+            text: `Check out this ${item.type}: ${item.title}`,
+            url: shareUrl
+          }).catch(() => {
+            navigator.clipboard.writeText(shareUrl);
+            toast({
+              title: "Share Link Copied",
+              description: `Link to ${item.title} copied to clipboard`,
+            });
+          });
+        } else {
+          navigator.clipboard.writeText(shareUrl);
+          toast({
+            title: "Share Link Copied",
+            description: `Link to ${item.title} copied to clipboard`,
+          });
+        }
         break;
       case 'favorite':
         const newFavorites = item.isFavorite 
           ? favoriteItems.filter(f => f.id !== item.id)
           : [...favoriteItems, item];
         setFavoriteItems(newFavorites);
+        item.isFavorite = !item.isFavorite;
         toast({
-          title: item.isFavorite ? "Removed from Favorites" : "Added to Favorites",
+          title: item.isFavorite ? "Added to Favorites" : "Removed from Favorites",
           description: item.title,
         });
         break;
@@ -171,9 +186,24 @@ const EnhancedPowerBISidebar = () => {
         });
         break;
       case 'duplicate':
-        const duplicatedItem = { ...item, id: Date.now().toString(), title: `${item.title} (Copy)` };
-        if (item.type === 'report') dataService.createReport(duplicatedItem);
-        else if (item.type === 'dashboard') dataService.createDashboard(duplicatedItem);
+        if (item.type === 'report') {
+          const original = dataService.getReports().find(r => r.id === item.id);
+          if (original) {
+            dataService.createReport({
+              ...original,
+              name: `${original.name} (Copy)`,
+              isPublished: false
+            });
+          }
+        } else if (item.type === 'dashboard') {
+          const original = dataService.getDashboards().find(d => d.id === item.id);
+          if (original) {
+            dataService.createDashboard({
+              ...original,
+              name: `${original.name} (Copy)`
+            });
+          }
+        }
         
         toast({
           title: "Duplicated",

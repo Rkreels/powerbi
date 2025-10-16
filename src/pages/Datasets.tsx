@@ -230,9 +230,24 @@ const Datasets = () => {
               disabled={selectedDatasets.length === 0}
               onClick={() => {
                 if (selectedDatasets.length > 0) {
+                  const datasetsToExport = datasets.filter(d => selectedDatasets.includes(d.id));
+                  const exportData = {
+                    datasets: datasetsToExport,
+                    exportedAt: new Date().toISOString(),
+                    count: datasetsToExport.length
+                  };
+                  
+                  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                  const url = window.URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  a.href = url;
+                  a.download = `datasets-export-${new Date().toISOString().split('T')[0]}.json`;
+                  a.click();
+                  window.URL.revokeObjectURL(url);
+                  
                   toast({
-                    title: "Export Started",
-                    description: `Exporting ${selectedDatasets.length} dataset(s).`,
+                    title: "Export Complete",
+                    description: `Exported ${selectedDatasets.length} dataset(s) successfully.`,
                     duration: 2000,
                   });
                 }

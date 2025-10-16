@@ -1,10 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import DataPane from '@/components/reportEditor/DataPane';
 import VisualizationPane from '@/components/reportEditor/VisualizationPane';
 import FilterPane from '@/components/reportEditor/FilterPane';
 import { EnhancedReportCanvas } from '@/components/reportEditor/EnhancedReportCanvas';
 import { Button } from "@/components/ui/button";
+import { dataService } from '@/services/dataService';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -204,28 +206,102 @@ const REPORT_TEMPLATES = [
 ];
 
 const ReportEditor = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [reportId, setReportId] = useState<string | null>(id || null);
   const [reportName, setReportName] = useState('Untitled Report');
   const [isPreviewMode, setIsPreviewMode] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [visualizations, setVisualizations] = useState<any[]>([]);
+  const [workspace, setWorkspace] = useState('My Workspace');
+  const [isPublished, setIsPublished] = useState(false);
+  const [undoStack, setUndoStack] = useState<any[]>([]);
+  const [redoStack, setRedoStack] = useState<any[]>([]);
+
+  // Load existing report if ID is provided
+  useEffect(() => {
+    if (id) {
+      const report = dataService.getReports().find(r => r.id === id);
+      if (report) {
+        setReportId(report.id);
+        setReportName(report.name);
+        setVisualizations(report.visualizations || []);
+        setWorkspace(report.workspace);
+        setIsPublished(report.isPublished);
+      }
+    }
+  }, [id]);
 
   const handleSave = () => {
-    toast({
-      title: "Report saved",
-      description: "Your report has been saved successfully.",
-      duration: 2000,
-    });
+    try {
+      if (reportId) {
+        // Update existing report
+        dataService.updateReport(reportId, {
+          name: reportName,
+          visualizations,
+          workspace,
+          isPublished
+        });
+        toast({
+          title: "Report saved",
+          description: `"${reportName}" has been updated successfully.`,
+          duration: 2000,
+        });
+      } else {
+        // Create new report
+        const newReport = dataService.createReport({
+          name: reportName,
+          description: '',
+          owner: 'Current User',
+          workspace,
+          isPublished,
+          visualizations
+        });
+        setReportId(newReport.id);
+        navigate(`/report/${newReport.id}`, { replace: true });
+        toast({
+          title: "Report created",
+          description: `"${reportName}" has been saved successfully.`,
+          duration: 2000,
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to save report",
+        variant: "destructive"
+      });
+    }
   };
 
   const handlePublish = () => {
+    setIsPublished(!isPublished);
+    if (reportId) {
+      dataService.updateReport(reportId, { isPublished: !isPublished });
+    }
     toast({
-      title: "Report published",
-      description: "Your report is now available to share.",
+      title: isPublished ? "Report unpublished" : "Report published",
+      description: isPublished 
+        ? "Your report is now private." 
+        : "Your report is now available to share.",
       duration: 2000,
     });
   };
 
   const handleUndo = () => {
+    if (undoStack.length === 0) {
+      toast({
+        title: "Nothing to undo",
+        description: "No more actions to undo.",
+        duration: 1000,
+      });
+      return;
+    }
+    const lastState = undoStack[undoStack.length - 1];
+    setRedoStack([...redoStack, { visualizations }]);
+    setVisualizations(lastState.visualizations);
+    setUndoStack(undoStack.slice(0, -1));
     toast({
       title: "Undo",
       description: "Last action has been undone.",
@@ -234,6 +310,18 @@ const ReportEditor = () => {
   };
 
   const handleRedo = () => {
+    if (redoStack.length === 0) {
+      toast({
+        title: "Nothing to redo",
+        description: "No more actions to redo.",
+        duration: 1000,
+      });
+      return;
+    }
+    const nextState = redoStack[redoStack.length - 1];
+    setUndoStack([...undoStack, { visualizations }]);
+    setVisualizations(nextState.visualizations);
+    setRedoStack(redoStack.slice(0, -1));
     toast({
       title: "Redo",
       description: "Action has been redone.",
@@ -242,11 +330,35 @@ const ReportEditor = () => {
   };
 
   const handleExport = () => {
-    toast({
-      title: "Export started",
-      description: "Your report is being exported as PDF.",
-      duration: 2000,
-    });
+    try {
+      // Export as JSON
+      const exportData = {
+        name: reportName,
+        workspace,
+        visualizations,
+        exportedAt: new Date().toISOString()
+      };
+      
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${reportName.replace(/\s+/g, '-')}-${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+      
+      toast({
+        title: "Export completed",
+        description: `"${reportName}" has been exported successfully.`,
+        duration: 2000,
+      });
+    } catch (error) {
+      toast({
+        title: "Export failed",
+        description: "Failed to export report",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleUseTemplate = (template: any) => {

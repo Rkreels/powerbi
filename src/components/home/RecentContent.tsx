@@ -50,12 +50,8 @@ const RecentContent: React.FC<RecentContentProps> = ({
 
   const handleEdit = (item: RecentItem, e: React.MouseEvent) => {
     e.stopPropagation();
-    toast({
-      title: "Edit",
-      description: `Opening ${item.title} for editing`,
-    });
     if (item.type === 'report') {
-      navigate('/report');
+      navigate(`/report/${item.id}`);
     } else {
       navigate('/dashboard');
     }
@@ -172,7 +168,7 @@ const RecentContent: React.FC<RecentContentProps> = ({
               className="border-b py-3 flex items-center hover:bg-gray-50 px-3 cursor-pointer group"
               onClick={() => {
                 if (item.type === 'report') {
-                  navigate('/report');
+                  navigate(`/report/${item.id}`);
                 } else {
                   navigate('/dashboard');
                 }
