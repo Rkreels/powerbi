@@ -1,12 +1,18 @@
 import { RecentItem, RecommendedItem } from '@/types/home';
 
-// Mock data storage using localStorage
-const STORAGE_KEYS = {
-  REPORTS: 'powerbi_reports',
-  DASHBOARDS: 'powerbi_dashboards',
-  DATASETS: 'powerbi_datasets',
-  WORKSPACES: 'powerbi_workspaces',
-  NOTIFICATIONS: 'powerbi_notifications'
+// In-memory data storage (no localStorage)
+const IN_MEMORY_STORAGE: {
+  reports: Report[];
+  dashboards: Dashboard[];
+  datasets: Dataset[];
+  workspaces: Workspace[];
+  notifications: Notification[];
+} = {
+  reports: [],
+  dashboards: [],
+  datasets: [],
+  workspaces: [],
+  notifications: []
 };
 
 export interface Report {
@@ -63,23 +69,13 @@ export interface Notification {
 }
 
 class DataService {
-  // Generic CRUD operations
-  private getFromStorage<T>(key: string): T[] {
-    const data = localStorage.getItem(key);
-    return data ? JSON.parse(data) : [];
-  }
-
-  private saveToStorage<T>(key: string, data: T[]): void {
-    localStorage.setItem(key, JSON.stringify(data));
-  }
-
   private generateId(): string {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
 
   // Reports
   getReports(): Report[] {
-    return this.getFromStorage<Report>(STORAGE_KEYS.REPORTS);
+    return IN_MEMORY_STORAGE.reports;
   }
 
   createReport(report: Omit<Report, 'id' | 'created' | 'modified'>): Report {
@@ -90,41 +86,33 @@ class DataService {
       modified: new Date().toISOString(),
     };
     
-    const reports = this.getReports();
-    reports.push(newReport);
-    this.saveToStorage(STORAGE_KEYS.REPORTS, reports);
+    IN_MEMORY_STORAGE.reports.push(newReport);
     return newReport;
   }
 
   updateReport(id: string, updates: Partial<Report>): Report | null {
-    const reports = this.getReports();
-    const index = reports.findIndex(r => r.id === id);
+    const index = IN_MEMORY_STORAGE.reports.findIndex(r => r.id === id);
     
     if (index === -1) return null;
     
-    reports[index] = {
-      ...reports[index],
+    IN_MEMORY_STORAGE.reports[index] = {
+      ...IN_MEMORY_STORAGE.reports[index],
       ...updates,
       modified: new Date().toISOString(),
     };
     
-    this.saveToStorage(STORAGE_KEYS.REPORTS, reports);
-    return reports[index];
+    return IN_MEMORY_STORAGE.reports[index];
   }
 
   deleteReport(id: string): boolean {
-    const reports = this.getReports();
-    const filtered = reports.filter(r => r.id !== id);
-    
-    if (filtered.length === reports.length) return false;
-    
-    this.saveToStorage(STORAGE_KEYS.REPORTS, filtered);
-    return true;
+    const initialLength = IN_MEMORY_STORAGE.reports.length;
+    IN_MEMORY_STORAGE.reports = IN_MEMORY_STORAGE.reports.filter(r => r.id !== id);
+    return IN_MEMORY_STORAGE.reports.length < initialLength;
   }
 
   // Dashboards
   getDashboards(): Dashboard[] {
-    return this.getFromStorage<Dashboard>(STORAGE_KEYS.DASHBOARDS);
+    return IN_MEMORY_STORAGE.dashboards;
   }
 
   createDashboard(dashboard: Omit<Dashboard, 'id' | 'created' | 'modified'>): Dashboard {
@@ -135,41 +123,33 @@ class DataService {
       modified: new Date().toISOString(),
     };
     
-    const dashboards = this.getDashboards();
-    dashboards.push(newDashboard);
-    this.saveToStorage(STORAGE_KEYS.DASHBOARDS, dashboards);
+    IN_MEMORY_STORAGE.dashboards.push(newDashboard);
     return newDashboard;
   }
 
   updateDashboard(id: string, updates: Partial<Dashboard>): Dashboard | null {
-    const dashboards = this.getDashboards();
-    const index = dashboards.findIndex(d => d.id === id);
+    const index = IN_MEMORY_STORAGE.dashboards.findIndex(d => d.id === id);
     
     if (index === -1) return null;
     
-    dashboards[index] = {
-      ...dashboards[index],
+    IN_MEMORY_STORAGE.dashboards[index] = {
+      ...IN_MEMORY_STORAGE.dashboards[index],
       ...updates,
       modified: new Date().toISOString(),
     };
     
-    this.saveToStorage(STORAGE_KEYS.DASHBOARDS, dashboards);
-    return dashboards[index];
+    return IN_MEMORY_STORAGE.dashboards[index];
   }
 
   deleteDashboard(id: string): boolean {
-    const dashboards = this.getDashboards();
-    const filtered = dashboards.filter(d => d.id !== id);
-    
-    if (filtered.length === dashboards.length) return false;
-    
-    this.saveToStorage(STORAGE_KEYS.DASHBOARDS, filtered);
-    return true;
+    const initialLength = IN_MEMORY_STORAGE.dashboards.length;
+    IN_MEMORY_STORAGE.dashboards = IN_MEMORY_STORAGE.dashboards.filter(d => d.id !== id);
+    return IN_MEMORY_STORAGE.dashboards.length < initialLength;
   }
 
   // Datasets
   getDatasets(): Dataset[] {
-    return this.getFromStorage<Dataset>(STORAGE_KEYS.DATASETS);
+    return IN_MEMORY_STORAGE.datasets;
   }
 
   createDataset(dataset: Omit<Dataset, 'id' | 'created' | 'modified'>): Dataset {
@@ -180,41 +160,33 @@ class DataService {
       modified: new Date().toISOString(),
     };
     
-    const datasets = this.getDatasets();
-    datasets.push(newDataset);
-    this.saveToStorage(STORAGE_KEYS.DATASETS, datasets);
+    IN_MEMORY_STORAGE.datasets.push(newDataset);
     return newDataset;
   }
 
   updateDataset(id: string, updates: Partial<Dataset>): Dataset | null {
-    const datasets = this.getDatasets();
-    const index = datasets.findIndex(d => d.id === id);
+    const index = IN_MEMORY_STORAGE.datasets.findIndex(d => d.id === id);
     
     if (index === -1) return null;
     
-    datasets[index] = {
-      ...datasets[index],
+    IN_MEMORY_STORAGE.datasets[index] = {
+      ...IN_MEMORY_STORAGE.datasets[index],
       ...updates,
       modified: new Date().toISOString(),
     };
     
-    this.saveToStorage(STORAGE_KEYS.DATASETS, datasets);
-    return datasets[index];
+    return IN_MEMORY_STORAGE.datasets[index];
   }
 
   deleteDataset(id: string): boolean {
-    const datasets = this.getDatasets();
-    const filtered = datasets.filter(d => d.id !== id);
-    
-    if (filtered.length === datasets.length) return false;
-    
-    this.saveToStorage(STORAGE_KEYS.DATASETS, filtered);
-    return true;
+    const initialLength = IN_MEMORY_STORAGE.datasets.length;
+    IN_MEMORY_STORAGE.datasets = IN_MEMORY_STORAGE.datasets.filter(d => d.id !== id);
+    return IN_MEMORY_STORAGE.datasets.length < initialLength;
   }
 
   // Workspaces
   getWorkspaces(): Workspace[] {
-    return this.getFromStorage<Workspace>(STORAGE_KEYS.WORKSPACES);
+    return IN_MEMORY_STORAGE.workspaces;
   }
 
   createWorkspace(workspace: Omit<Workspace, 'id' | 'created'>): Workspace {
@@ -224,15 +196,13 @@ class DataService {
       created: new Date().toISOString(),
     };
     
-    const workspaces = this.getWorkspaces();
-    workspaces.push(newWorkspace);
-    this.saveToStorage(STORAGE_KEYS.WORKSPACES, workspaces);
+    IN_MEMORY_STORAGE.workspaces.push(newWorkspace);
     return newWorkspace;
   }
 
   // Notifications
   getNotifications(): Notification[] {
-    return this.getFromStorage<Notification>(STORAGE_KEYS.NOTIFICATIONS);
+    return IN_MEMORY_STORAGE.notifications;
   }
 
   createNotification(notification: Omit<Notification, 'id' | 'created' | 'read'>): Notification {
@@ -243,20 +213,16 @@ class DataService {
       read: false,
     };
     
-    const notifications = this.getNotifications();
-    notifications.unshift(newNotification); // Add to beginning
-    this.saveToStorage(STORAGE_KEYS.NOTIFICATIONS, notifications);
+    IN_MEMORY_STORAGE.notifications.unshift(newNotification);
     return newNotification;
   }
 
   markNotificationAsRead(id: string): boolean {
-    const notifications = this.getNotifications();
-    const notification = notifications.find(n => n.id === id);
+    const notification = IN_MEMORY_STORAGE.notifications.find(n => n.id === id);
     
     if (!notification) return false;
     
     notification.read = true;
-    this.saveToStorage(STORAGE_KEYS.NOTIFICATIONS, notifications);
     return true;
   }
 
