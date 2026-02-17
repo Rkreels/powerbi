@@ -1,12 +1,12 @@
 import { RecentItem, RecommendedItem } from '@/types/home';
 
-// In-memory data storage (no localStorage)
+// In-memory data storage (no localStorage, no browser storage)
 const IN_MEMORY_STORAGE: {
   reports: Report[];
   dashboards: Dashboard[];
   datasets: Dataset[];
   workspaces: Workspace[];
-  notifications: Notification[];
+  notifications: AppNotification[];
 } = {
   reports: [],
   dashboards: [],
@@ -59,7 +59,7 @@ export interface Workspace {
   isDefault: boolean;
 }
 
-export interface Notification {
+export interface AppNotification {
   id: string;
   title: string;
   message: string;
@@ -67,6 +67,9 @@ export interface Notification {
   created: string;
   read: boolean;
 }
+
+// Re-export as Notification for backward compatibility
+export type Notification = AppNotification;
 
 class DataService {
   private generateId(): string {
@@ -85,22 +88,18 @@ class DataService {
       created: new Date().toISOString(),
       modified: new Date().toISOString(),
     };
-    
     IN_MEMORY_STORAGE.reports.push(newReport);
     return newReport;
   }
 
   updateReport(id: string, updates: Partial<Report>): Report | null {
     const index = IN_MEMORY_STORAGE.reports.findIndex(r => r.id === id);
-    
     if (index === -1) return null;
-    
     IN_MEMORY_STORAGE.reports[index] = {
       ...IN_MEMORY_STORAGE.reports[index],
       ...updates,
       modified: new Date().toISOString(),
     };
-    
     return IN_MEMORY_STORAGE.reports[index];
   }
 
@@ -122,22 +121,18 @@ class DataService {
       created: new Date().toISOString(),
       modified: new Date().toISOString(),
     };
-    
     IN_MEMORY_STORAGE.dashboards.push(newDashboard);
     return newDashboard;
   }
 
   updateDashboard(id: string, updates: Partial<Dashboard>): Dashboard | null {
     const index = IN_MEMORY_STORAGE.dashboards.findIndex(d => d.id === id);
-    
     if (index === -1) return null;
-    
     IN_MEMORY_STORAGE.dashboards[index] = {
       ...IN_MEMORY_STORAGE.dashboards[index],
       ...updates,
       modified: new Date().toISOString(),
     };
-    
     return IN_MEMORY_STORAGE.dashboards[index];
   }
 
@@ -159,22 +154,18 @@ class DataService {
       created: new Date().toISOString(),
       modified: new Date().toISOString(),
     };
-    
     IN_MEMORY_STORAGE.datasets.push(newDataset);
     return newDataset;
   }
 
   updateDataset(id: string, updates: Partial<Dataset>): Dataset | null {
     const index = IN_MEMORY_STORAGE.datasets.findIndex(d => d.id === id);
-    
     if (index === -1) return null;
-    
     IN_MEMORY_STORAGE.datasets[index] = {
       ...IN_MEMORY_STORAGE.datasets[index],
       ...updates,
       modified: new Date().toISOString(),
     };
-    
     return IN_MEMORY_STORAGE.datasets[index];
   }
 
@@ -195,33 +186,36 @@ class DataService {
       id: this.generateId(),
       created: new Date().toISOString(),
     };
-    
     IN_MEMORY_STORAGE.workspaces.push(newWorkspace);
     return newWorkspace;
   }
 
+  deleteWorkspace(id: string): boolean {
+    const ws = IN_MEMORY_STORAGE.workspaces.find(w => w.id === id);
+    if (!ws || ws.isDefault) return false;
+    IN_MEMORY_STORAGE.workspaces = IN_MEMORY_STORAGE.workspaces.filter(w => w.id !== id);
+    return true;
+  }
+
   // Notifications
-  getNotifications(): Notification[] {
+  getNotifications(): AppNotification[] {
     return IN_MEMORY_STORAGE.notifications;
   }
 
-  createNotification(notification: Omit<Notification, 'id' | 'created' | 'read'>): Notification {
-    const newNotification: Notification = {
+  createNotification(notification: Omit<AppNotification, 'id' | 'created' | 'read'>): AppNotification {
+    const newNotification: AppNotification = {
       ...notification,
       id: this.generateId(),
       created: new Date().toISOString(),
       read: false,
     };
-    
     IN_MEMORY_STORAGE.notifications.unshift(newNotification);
     return newNotification;
   }
 
   markNotificationAsRead(id: string): boolean {
     const notification = IN_MEMORY_STORAGE.notifications.find(n => n.id === id);
-    
     if (!notification) return false;
-    
     notification.read = true;
     return true;
   }
@@ -257,7 +251,7 @@ class DataService {
       .slice(0, 10);
   }
 
-// Sample realistic data
+  // Sample realistic data
   getSampleData(): { datasets: any[], sampleVisualizations: any[] } {
     const sampleDatasets = [
       {
@@ -303,173 +297,97 @@ class DataService {
     ];
 
     const sampleVisualizations = [
-      {
-        id: 'v1',
-        type: 'LineChart',
-        title: 'Revenue Trend',
-        datasetName: 'Sales Data',
-        config: {
-          xAxis: 'month',
-          yAxis: 'revenue',
-          color: '#8884d8'
-        }
-      },
-      {
-        id: 'v2',
-        type: 'BarChart', 
-        title: 'Units Sold by Month',
-        datasetName: 'Sales Data',
-        config: {
-          xAxis: 'month',
-          yAxis: 'units',
-          color: '#82ca9d'
-        }
-      },
-      {
-        id: 'v3',
-        type: 'PieChart',
-        title: 'Revenue by Region',
-        datasetName: 'Sales Data',
-        config: {
-          nameField: 'region',
-          valueField: 'revenue'
-        }
-      }
+      { id: 'v1', type: 'LineChart', title: 'Revenue Trend', datasetName: 'Sales Data', config: { xAxis: 'month', yAxis: 'revenue', color: '#8884d8' } },
+      { id: 'v2', type: 'BarChart', title: 'Units Sold by Month', datasetName: 'Sales Data', config: { xAxis: 'month', yAxis: 'units', color: '#82ca9d' } },
+      { id: 'v3', type: 'PieChart', title: 'Revenue by Region', datasetName: 'Sales Data', config: { nameField: 'region', valueField: 'revenue' } }
     ];
 
     return { datasets: sampleDatasets, sampleVisualizations };
   }
 
-  // Enhanced data filtering and querying
   queryData(datasetName: string, filters?: any): any[] {
     const { datasets } = this.getSampleData();
     const dataset = datasets.find(ds => ds.name === datasetName);
     if (!dataset) return [];
-
     let data = [...dataset.data];
-    
     if (filters) {
-      if (filters.category) {
-        data = data.filter(item => item.category === filters.category);
-      }
-      if (filters.region) {
-        data = data.filter(item => item.region === filters.region);
-      }
-      if (filters.dateRange) {
-        // Implement date filtering logic
-      }
+      if (filters.category) data = data.filter(item => item.category === filters.category);
+      if (filters.region) data = data.filter(item => item.region === filters.region);
     }
-
     return data;
   }
 
-  // Initialize with sample data
+  // Initialize with 10 enterprise demo data entries
   initializeSampleData(): void {
-    if (this.getReports().length === 0) {
-      const { sampleVisualizations } = this.getSampleData();
-      
-      this.createReport({
-        name: 'Sales Performance Dashboard',
-        description: 'Comprehensive sales analysis with multiple visualizations',
-        owner: 'John Doe',
-        workspace: 'My Workspace',
-        isPublished: true,
-        visualizations: sampleVisualizations.slice(0, 2)
-      });
+    if (this.getReports().length > 0) return;
 
-      this.createReport({
-        name: 'Customer Analytics Report',
-        description: 'Customer behavior and segmentation analysis',
-        owner: 'Jane Smith',
-        workspace: 'Sales Team',
-        isPublished: false,
-        visualizations: [sampleVisualizations[2]]
-      });
+    const { sampleVisualizations } = this.getSampleData();
 
-      this.createReport({
-        name: 'Product Performance Analysis',
-        description: 'Detailed product sales and rating analysis',
-        owner: 'Mike Johnson',
-        workspace: 'Product Team',
-        isPublished: true,
-        visualizations: []
-      });
+    // 10 Enterprise Reports
+    const reportData = [
+      { name: 'Q4 Sales Performance Dashboard', description: 'Quarterly sales analysis with regional breakdowns and target tracking', owner: 'John Doe', workspace: 'My Workspace', isPublished: true, visualizations: sampleVisualizations.slice(0, 2) },
+      { name: 'Customer Segmentation Analysis', description: 'Customer behavior clustering and lifetime value analysis', owner: 'Jane Smith', workspace: 'Sales Team', isPublished: true, visualizations: [sampleVisualizations[2]] },
+      { name: 'Supply Chain Efficiency Report', description: 'End-to-end supply chain metrics and bottleneck identification', owner: 'Mike Johnson', workspace: 'Operations', isPublished: true, visualizations: [] },
+      { name: 'Marketing Campaign ROI Tracker', description: 'Multi-channel campaign performance and spend optimization', owner: 'Sarah Wilson', workspace: 'Marketing', isPublished: true, visualizations: [sampleVisualizations[0], sampleVisualizations[2]] },
+      { name: 'Financial P&L Statement', description: 'Profit and loss analysis with budget variance tracking', owner: 'Robert Chen', workspace: 'Finance', isPublished: true, visualizations: sampleVisualizations },
+      { name: 'HR Workforce Analytics', description: 'Employee headcount, attrition, and diversity metrics', owner: 'Lisa Park', workspace: 'Human Resources', isPublished: false, visualizations: [sampleVisualizations[1]] },
+      { name: 'Product Launch Performance', description: 'New product sales velocity and market penetration analysis', owner: 'David Kim', workspace: 'Product Team', isPublished: true, visualizations: [sampleVisualizations[0]] },
+      { name: 'IT Infrastructure Monitoring', description: 'Server uptime, incident tracking, and SLA compliance', owner: 'Alex Turner', workspace: 'IT Operations', isPublished: false, visualizations: [] },
+      { name: 'Executive KPI Scorecard', description: 'C-level dashboard with company-wide KPIs and OKR tracking', owner: 'John Doe', workspace: 'My Workspace', isPublished: true, visualizations: sampleVisualizations },
+      { name: 'Regional Sales Comparison', description: 'Compare sales performance across different geographic regions', owner: 'Maria Garcia', workspace: 'Sales Team', isPublished: true, visualizations: [sampleVisualizations[0], sampleVisualizations[2]] },
+    ];
+    reportData.forEach(r => this.createReport(r));
 
-      this.createReport({
-        name: 'Regional Sales Comparison',
-        description: 'Compare sales performance across different regions',
-        owner: 'Sarah Wilson',
-        workspace: 'My Workspace',
-        isPublished: true,
-        visualizations: [sampleVisualizations[0], sampleVisualizations[2]]
-      });
-    }
+    // 5 Enterprise Dashboards
+    const dashboardData = [
+      { name: 'Executive Dashboard', description: 'High-level business metrics and KPIs for leadership', owner: 'John Doe', workspace: 'My Workspace', reports: [] },
+      { name: 'Sales Operations Dashboard', description: 'Real-time sales pipeline and forecast dashboard', owner: 'Jane Smith', workspace: 'Sales Team', reports: [] },
+      { name: 'Marketing Analytics Hub', description: 'Unified view of all marketing campaigns and channels', owner: 'Sarah Wilson', workspace: 'Marketing', reports: [] },
+      { name: 'Finance Overview', description: 'Cash flow, revenue, and expense tracking dashboard', owner: 'Robert Chen', workspace: 'Finance', reports: [] },
+      { name: 'Operations Control Center', description: 'Supply chain, inventory, and logistics monitoring', owner: 'Mike Johnson', workspace: 'Operations', reports: [] },
+    ];
+    dashboardData.forEach(d => this.createDashboard(d));
 
-    if (this.getDashboards().length === 0) {
-      this.createDashboard({
-        name: 'Executive Dashboard',
-        description: 'High-level business metrics and KPIs',
-        owner: 'John Doe',
-        workspace: 'My Workspace',
-        reports: []
-      });
-    }
+    // 10 Enterprise Datasets
+    const datasetData = [
+      { name: 'Enterprise Sales Data', description: 'Historical sales transactions from CRM system', source: 'SQL Server', owner: 'Data Engineering', size: '2.5 GB', status: 'active' as const },
+      { name: 'Customer 360 Dataset', description: 'Unified customer view from multiple touchpoints', source: 'Azure Synapse', owner: 'Marketing Team', size: '1.8 GB', status: 'active' as const },
+      { name: 'Financial Ledger Data', description: 'General ledger and journal entries', source: 'Oracle', owner: 'Finance Team', size: '4.2 GB', status: 'active' as const },
+      { name: 'HR Employee Records', description: 'Employee demographics, payroll, and performance data', source: 'Workday API', owner: 'HR Analytics', size: '890 MB', status: 'active' as const },
+      { name: 'Product Catalog', description: 'Complete product hierarchy and pricing data', source: 'PostgreSQL', owner: 'Product Team', size: '156 MB', status: 'active' as const },
+      { name: 'Web Analytics Data', description: 'Website traffic, conversions, and user behavior', source: 'Google Analytics', owner: 'Digital Team', size: '3.1 GB', status: 'active' as const },
+      { name: 'Supply Chain Logistics', description: 'Shipping, inventory levels, and supplier performance', source: 'SAP', owner: 'Operations', size: '1.4 GB', status: 'active' as const },
+      { name: 'Social Media Metrics', description: 'Engagement, reach, and sentiment across platforms', source: 'REST API', owner: 'Social Media Team', size: '420 MB', status: 'active' as const },
+      { name: 'IoT Sensor Readings', description: 'Manufacturing equipment telemetry and alerts', source: 'Azure IoT Hub', owner: 'Engineering', size: '8.7 GB', status: 'refreshing' as const },
+      { name: 'Market Research Surveys', description: 'Customer satisfaction and NPS survey results', source: 'Excel', owner: 'Research Team', size: '95 MB', status: 'active' as const },
+    ];
+    datasetData.forEach(d => this.createDataset(d));
 
-    if (this.getDatasets().length === 0) {
-      this.createDataset({
-        name: 'Sales Data',
-        description: 'Historical sales data from CRM',
-        source: 'SQL Server',
-        owner: 'System',
-        size: '2.5 GB',
-        status: 'active'
-      });
+    // 6 Enterprise Workspaces
+    const workspaceData = [
+      { name: 'My Workspace', description: 'Personal workspace', members: 1, isDefault: true },
+      { name: 'Sales Team', description: 'Sales analytics and reporting workspace', members: 12, isDefault: false },
+      { name: 'Marketing', description: 'Marketing analytics and campaign tracking', members: 8, isDefault: false },
+      { name: 'Finance', description: 'Financial reporting and budget analysis', members: 6, isDefault: false },
+      { name: 'Operations', description: 'Supply chain and operations analytics', members: 10, isDefault: false },
+      { name: 'Human Resources', description: 'HR analytics and workforce planning', members: 5, isDefault: false },
+    ];
+    workspaceData.forEach(w => this.createWorkspace(w));
 
-      this.createDataset({
-        name: 'Customer Data',
-        description: 'Customer demographics and behavior',
-        source: 'Excel',
-        owner: 'Marketing Team',
-        size: '156 MB',
-        status: 'active'
-      });
-    }
-
-    if (this.getWorkspaces().length === 0) {
-      this.createWorkspace({
-        name: 'My Workspace',
-        description: 'Personal workspace',
-        members: 1,
-        isDefault: true
-      });
-
-      this.createWorkspace({
-        name: 'Sales Team',
-        description: 'Shared workspace for sales team',
-        members: 8,
-        isDefault: false
-      });
-    }
-
-    if (this.getNotifications().length === 0) {
-      this.createNotification({
-        title: 'Welcome to Power BI',
-        message: 'Your account has been set up successfully!',
-        type: 'success'
-      });
-
-      this.createNotification({
-        title: 'Dataset Refresh Completed',
-        message: 'Sales Data has been refreshed successfully.',
-        type: 'info'
-      });
-
-      this.createNotification({
-        title: 'Report Shared',
-        message: 'Sales Performance Report was shared with your team.',
-        type: 'info'
-      });
-    }
+    // 10 Notifications
+    const notificationData = [
+      { title: 'Welcome to Power BI', message: 'Your enterprise account has been activated with full Pro features.', type: 'success' as const },
+      { title: 'Dataset Refresh Completed', message: 'Enterprise Sales Data has been refreshed successfully with 2.5M new records.', type: 'info' as const },
+      { title: 'Report Shared With You', message: 'Sarah Wilson shared "Marketing Campaign ROI Tracker" with you.', type: 'info' as const },
+      { title: 'Scheduled Refresh Failed', message: 'IoT Sensor Readings dataset refresh failed. Check connection settings.', type: 'error' as const },
+      { title: 'New Workspace Member', message: 'Alex Turner joined the Operations workspace.', type: 'info' as const },
+      { title: 'Dashboard Comment', message: 'Robert Chen commented on "Executive Dashboard": "Q4 numbers look great!"', type: 'info' as const },
+      { title: 'Data Alert Triggered', message: 'Sales in North region exceeded $100K threshold.', type: 'warning' as const },
+      { title: 'Report Published', message: 'Executive KPI Scorecard has been published to the organization.', type: 'success' as const },
+      { title: 'Subscription Renewal', message: 'Your Power BI Pro trial expires in 28 days. Upgrade to continue.', type: 'warning' as const },
+      { title: 'New Feature Available', message: 'AI-powered insights are now available for your datasets.', type: 'info' as const },
+    ];
+    notificationData.forEach(n => this.createNotification(n));
   }
 }
 
