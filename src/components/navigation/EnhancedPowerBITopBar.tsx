@@ -29,23 +29,12 @@ const EnhancedPowerBITopBar = () => {
 
   useEffect(() => {
     setNotificationCount(dataService.getUnreadNotificationCount());
-    loadRecentSearches();
   }, []);
-
-  const loadRecentSearches = () => {
-    // Load from localStorage or service
-    const stored = localStorage.getItem('recentSearches');
-    if (stored) {
-      setRecentSearches(JSON.parse(stored));
-    }
-  };
 
   const saveRecentSearch = (query: string) => {
     if (!query.trim()) return;
-    
     const updated = [query, ...recentSearches.filter(s => s !== query)].slice(0, 5);
     setRecentSearches(updated);
-    localStorage.setItem('recentSearches', JSON.stringify(updated));
   };
 
   const performSearch = (query: string) => {
