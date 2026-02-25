@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Star, Users, LayoutGrid, MoreVertical, Edit, Trash2, Share2 } from 'lucide-react';
+import { Clock, Star, Users, LayoutGrid, MoreVertical, Edit, Trash2, Share2, Copy, BarChart2, Layout } from 'lucide-react';
 import { dataService } from '@/services/dataService';
 import { toast } from "@/hooks/use-toast";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -24,11 +23,7 @@ interface RecentContentProps {
 }
 
 const RecentContent: React.FC<RecentContentProps> = ({ 
-  recentItems, 
-  activeTab, 
-  setActiveTab, 
-  searchQuery,
-  onItemsChange
+  recentItems, activeTab, setActiveTab, searchQuery, onItemsChange
 }) => {
   const navigate = useNavigate();
   const [filterQuery, setFilterQuery] = useState('');
@@ -38,203 +33,191 @@ const RecentContent: React.FC<RecentContentProps> = ({
     const success = item.type === 'report' 
       ? dataService.deleteReport(item.id)
       : dataService.deleteDashboard(item.id);
-    
     if (success) {
       onItemsChange();
-      toast({
-        title: "Deleted",
-        description: `${item.title} has been deleted`,
-      });
+      toast({ title: "Deleted", description: `${item.title} has been deleted` });
     }
   };
 
   const handleEdit = (item: RecentItem, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (item.type === 'report') {
-      navigate(`/report/${item.id}`);
-    } else {
-      navigate('/dashboard');
-    }
+    if (item.type === 'report') navigate(`/report/${item.id}`);
+    else navigate('/dashboard');
   };
 
   const handleShare = (item: RecentItem, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (navigator.share) {
-      navigator.share({
-        title: item.title,
-        text: `Check out this ${item.type}: ${item.title}`,
-        url: window.location.href
-      }).catch(() => {
-        toast({
-          title: "Shared",
-          description: `${item.title} shared successfully`,
-        });
-      });
+    const url = `${window.location.origin}/${item.type}/${item.id}`;
+    navigator.clipboard.writeText(url);
+    toast({ title: "Link Copied", description: `Link to "${item.title}" copied to clipboard` });
+  };
+
+  const handleDuplicate = (item: RecentItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (item.type === 'report') {
+      const original = dataService.getReports().find(r => r.id === item.id);
+      if (original) {
+        dataService.createReport({ ...original, name: `${original.name} (Copy)`, isPublished: false });
+        onItemsChange();
+        toast({ title: "Duplicated", description: `Copy of "${item.title}" created` });
+      }
     } else {
-      toast({
-        title: "Shared",
-        description: `${item.title} shared successfully`,
-      });
+      const original = dataService.getDashboards().find(d => d.id === item.id);
+      if (original) {
+        dataService.createDashboard({ ...original, name: `${original.name} (Copy)` });
+        onItemsChange();
+        toast({ title: "Duplicated", description: `Copy of "${item.title}" created` });
+      }
     }
   };
 
-  const filteredItems = recentItems.filter(item =>
+  // Get favorites (reports that are published)
+  const favoriteItems = dataService.getReports()
+    .filter(r => r.isPublished)
+    .map(r => ({ id: r.id, title: r.name, lastModified: r.modified, owner: r.owner, type: 'report' as const }));
+
+  // Get shared items
+  const sharedItems = dataService.getDashboards()
+    .map(d => ({ id: d.id, title: d.name, lastModified: d.modified, owner: d.owner, type: 'dashboard' as const }));
+
+  const getActiveItems = () => {
+    switch (activeTab) {
+      case 'recent': return recentItems;
+      case 'favorites': return favoriteItems;
+      case 'apps': return sharedItems;
+      case 'external': return [];
+      default: return recentItems;
+    }
+  };
+
+  const activeItems = getActiveItems();
+
+  const filteredItems = activeItems.filter(item =>
     item.title.toLowerCase().includes(filterQuery.toLowerCase()) ||
     item.owner.toLowerCase().includes(filterQuery.toLowerCase())
   );
   
+  const tabs = [
+    { key: 'recent', label: 'Recent', icon: Clock },
+    { key: 'favorites', label: 'Favorites', icon: Star },
+    { key: 'apps', label: 'Dashboards', icon: LayoutGrid },
+    { key: 'external', label: 'Shared', icon: Users },
+  ];
+
   return (
     <>
       <div className="mb-4 border-b">
-        <div className="flex space-x-1">
-          <button 
-            className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === 'recent' ? 'border-powerbi-primary text-powerbi-primary' : 'border-transparent text-gray-600 hover:text-gray-800'}`}
-            onClick={() => setActiveTab('recent')}
-          >
-            <Clock size={14} className="inline mr-1" />
-            Recent
-          </button>
-          <button 
-            className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === 'favorites' ? 'border-powerbi-primary text-powerbi-primary' : 'border-transparent text-gray-600 hover:text-gray-800'}`}
-            onClick={() => setActiveTab('favorites')}
-          >
-            <Star size={14} className="inline mr-1" />
-            Favorites
-          </button>
-          <button 
-            className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === 'apps' ? 'border-powerbi-primary text-powerbi-primary' : 'border-transparent text-gray-600 hover:text-gray-800'}`}
-            onClick={() => setActiveTab('apps')}
-          >
-            <LayoutGrid size={14} className="inline mr-1" />
-            My apps
-          </button>
-          <button 
-            className={`px-4 py-2 text-sm font-medium border-b-2 ${activeTab === 'external' ? 'border-powerbi-primary text-powerbi-primary' : 'border-transparent text-gray-600 hover:text-gray-800'}`}
-            onClick={() => setActiveTab('external')}
-          >
-            <Users size={14} className="inline mr-1" />
-            From external orgs
-          </button>
+        <div className="flex space-x-1 overflow-x-auto">
+          {tabs.map(tab => (
+            <button 
+              key={tab.key}
+              className={`px-4 py-2 text-sm font-medium border-b-2 whitespace-nowrap ${
+                activeTab === tab.key 
+                  ? 'border-blue-600 text-blue-600' 
+                  : 'border-transparent text-gray-600 hover:text-gray-800'
+              }`}
+              onClick={() => setActiveTab(tab.key)}
+            >
+              <tab.icon size={14} className="inline mr-1" />
+              {tab.label}
+              {tab.key === 'recent' && recentItems.length > 0 && (
+                <span className="ml-1 text-xs text-gray-400">({recentItems.length})</span>
+              )}
+              {tab.key === 'favorites' && favoriteItems.length > 0 && (
+                <span className="ml-1 text-xs text-gray-400">({favoriteItems.length})</span>
+              )}
+            </button>
+          ))}
         </div>
       </div>
       
-      {/* Filter bar */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex justify-between items-center mb-4">
         <div className="relative w-64">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
           <input 
-            type="text" 
-            value={filterQuery}
-            onChange={(e) => setFilterQuery(e.target.value)}
+            type="text" value={filterQuery} onChange={(e) => setFilterQuery(e.target.value)}
             placeholder="Filter by keyword" 
             className="w-full pl-8 pr-4 py-1.5 border rounded-md text-sm"
           />
         </div>
-        
-        <Button 
-          variant="outline"
-          size="sm"
-          onClick={() => toast({ title: "Filter", description: "Advanced filters coming soon" })}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-1">
-            <path d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z"></path>
-          </svg>
-          Filter
-        </Button>
       </div>
       
-      {/* No content message or list of items */}
-      {activeTab === 'recent' && filteredItems.length === 0 ? (
-        <div className="text-center py-16">
-          <div className="mb-4 mx-auto w-24 h-24 rounded-full bg-yellow-100 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-400">
-              <path d="M21.5 12H16c-.7 2-2.8 4-5 4s-4.3-2-5-4H.5"></path>
-              <path d="M3 9l2 6h14l2-6"></path>
-            </svg>
+      {filteredItems.length === 0 ? (
+        <div className="text-center py-12">
+          <div className="mb-4 mx-auto w-20 h-20 rounded-full bg-yellow-100 flex items-center justify-center">
+            {activeTab === 'favorites' ? <Star size={36} className="text-yellow-400" /> : 
+             activeTab === 'external' ? <Users size={36} className="text-yellow-400" /> :
+             <Clock size={36} className="text-yellow-400" />}
           </div>
-          <h2 className="text-xl font-semibold mb-2">Find recently opened content here</h2>
-          <p className="text-gray-600 max-w-md mx-auto">
-            Once you've opened some Power BI content, come back to Recents to find it again easily.
+          <h2 className="text-lg font-semibold mb-2">
+            {activeTab === 'recent' ? 'No recent content' :
+             activeTab === 'favorites' ? 'No favorites yet' :
+             activeTab === 'apps' ? 'No dashboards' :
+             'No shared content'}
+          </h2>
+          <p className="text-gray-600 text-sm max-w-md mx-auto">
+            {activeTab === 'recent' ? 'Open a report or dashboard to see it here.' :
+             activeTab === 'favorites' ? 'Publish reports to mark them as favorites.' :
+             activeTab === 'apps' ? 'Create a dashboard to see it here.' :
+             'No externally shared content available.'}
           </p>
+          {activeTab === 'recent' && (
+            <Button className="mt-4" onClick={() => navigate('/report')}>Create a Report</Button>
+          )}
         </div>
-      ) : activeTab === 'recent' && (
+      ) : (
         <div>
           {filteredItems.map(item => (
             <div 
               key={item.id} 
-              className="border-b py-3 flex items-center hover:bg-gray-50 px-3 cursor-pointer group"
+              className="border-b py-3 flex items-center hover:bg-gray-50 px-3 cursor-pointer group transition-colors"
               onClick={() => {
-                if (item.type === 'report') {
-                  navigate(`/report/${item.id}`);
-                } else {
-                  navigate('/dashboard');
-                }
+                if (item.type === 'report') navigate(`/report/${item.id}`);
+                else navigate('/dashboard');
               }}
             >
-              <div className="w-10 h-10 mr-4 rounded bg-powerbi-primary flex items-center justify-center text-white">
-                {item.type === 'report' ? 'R' : 'D'}
+              <div className={`w-10 h-10 mr-4 rounded flex items-center justify-center text-white ${
+                item.type === 'report' ? 'bg-green-600' : 'bg-blue-600'
+              }`}>
+                {item.type === 'report' ? <BarChart2 size={18} /> : <Layout size={18} />}
               </div>
-              <div className="flex-1">
-                <h3 className="font-medium">{item.title}</h3>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-medium truncate">{item.title}</h3>
                 <div className="text-xs text-gray-600">
-                  Modified {new Date(item.lastModified).toLocaleDateString()} • {item.owner}
+                  {new Date(item.lastModified).toLocaleDateString()} • {item.owner}
                 </div>
               </div>
               <div className="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => handleShare(item, e)}
-                  className="p-1.5 h-auto text-gray-400 hover:text-blue-600"
-                >
+                <Button variant="ghost" size="sm" onClick={(e) => handleShare(item, e)} className="p-1.5 h-auto text-gray-400 hover:text-blue-600">
                   <Share2 size={16} />
                 </Button>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={(e) => e.stopPropagation()}
-                      className="p-1.5 h-auto text-gray-400 hover:text-gray-600"
-                    >
+                    <Button variant="ghost" size="sm" onClick={(e) => e.stopPropagation()} className="p-1.5 h-auto text-gray-400 hover:text-gray-600">
                       <MoreVertical size={16} />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
                     <DropdownMenuItem onClick={(e) => handleEdit(item, e)}>
-                      <Edit size={16} className="mr-2" />
-                      Edit
+                      <Edit size={16} className="mr-2" /> Edit
                     </DropdownMenuItem>
-                    <DropdownMenuItem 
-                      onClick={(e) => handleDelete(item, e)}
-                      className="text-red-600"
-                    >
-                      <Trash2 size={16} className="mr-2" />
-                      Delete
+                    <DropdownMenuItem onClick={(e) => handleDuplicate(item, e)}>
+                      <Copy size={16} className="mr-2" /> Duplicate
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={(e) => handleShare(item, e)}>
+                      <Share2 size={16} className="mr-2" /> Copy Link
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={(e) => handleDelete(item, e)} className="text-red-600">
+                      <Trash2 size={16} className="mr-2" /> Delete
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
             </div>
           ))}
-        </div>
-      )}
-      
-      {(activeTab !== 'recent' || (activeTab === 'recent' && recentItems.length === 0 && searchQuery)) && (
-        <div className="text-center py-16">
-          <div className="mb-4 mx-auto w-24 h-24 rounded-full bg-yellow-100 flex items-center justify-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-yellow-400">
-              <path d="M21.5 12H16c-.7 2-2.8 4-5 4s-4.3-2-5-4H.5"></path>
-              <path d="M3 9l2 6h14l2-6"></path>
-            </svg>
-          </div>
-          <h2 className="text-xl font-semibold mb-2">No content found</h2>
-          <p className="text-gray-600 max-w-md mx-auto">
-            There's no content to show in this section right now.
-          </p>
         </div>
       )}
     </>

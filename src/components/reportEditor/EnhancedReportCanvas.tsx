@@ -261,16 +261,22 @@ const ChartVisualization: React.FC<VisualizationProps> = ({
 
 interface EnhancedReportCanvasProps {
   selectedTemplate?: any;
+  reportId?: string | null;
+  reportName?: string;
 }
 
-export const EnhancedReportCanvas: React.FC<EnhancedReportCanvasProps> = ({ selectedTemplate }) => {
+export const EnhancedReportCanvas: React.FC<EnhancedReportCanvasProps> = ({ selectedTemplate, reportId, reportName: propReportName }) => {
   const [visualizations, setVisualizations] = useState<any[]>([]);
   const [selectedVisualization, setSelectedVisualization] = useState<string | null>(null);
-  const [reportName, setReportName] = useState('Untitled Report');
+  const [reportName, setReportName] = useState(propReportName || 'Untitled Report');
   const [isDraggingOver, setIsDraggingOver] = useState(false);
   const [viewMode, setViewMode] = useState<'edit' | 'preview'>('edit');
 
-  // Initialize with sample data
+  // Load report-specific visualizations
+  useEffect(() => {
+    if (propReportName) setReportName(propReportName);
+  }, [propReportName]);
+
   useEffect(() => {
     if (selectedTemplate?.visualizations) {
       const templateViz = selectedTemplate.visualizations.map((viz: any, index: number) => ({
@@ -288,61 +294,113 @@ export const EnhancedReportCanvas: React.FC<EnhancedReportCanvasProps> = ({ sele
       }));
       setVisualizations(templateViz);
       setReportName(selectedTemplate.name || 'Untitled Report');
+    } else if (reportId) {
+      // Load report-specific data from service
+      const report = dataService.getReports().find(r => r.id === reportId);
+      if (report && report.visualizations && report.visualizations.length > 0) {
+        setVisualizations(report.visualizations);
+      } else {
+        // Generate unique visualizations based on report name/id
+        setVisualizations(generateReportVisualizations(reportId, report?.name || 'Report'));
+      }
     } else {
-      // Default sample visualizations
-      setVisualizations([
-        {
-          id: 'viz-1',
-          type: 'bar',
-          title: 'Sales by Category',
-          data: [
-            { name: 'Electronics', value: 40000 },
-            { name: 'Clothing', value: 30000 },
-            { name: 'Home', value: 50000 },
-            { name: 'Sports', value: 25000 }
-          ],
-          config: { xKey: 'name', yKey: 'value', color: '#8884d8' },
-          position: { x: 0, y: 0, width: 4, height: 3 }
-        },
-        {
-          id: 'viz-2',
-          type: 'line',
-          title: 'Monthly Trend',
-          data: [
-            { name: 'Jan', value: 12000 },
-            { name: 'Feb', value: 15000 },
-            { name: 'Mar', value: 18000 },
-            { name: 'Apr', value: 22000 },
-            { name: 'May', value: 25000 },
-            { name: 'Jun', value: 28000 }
-          ],
-          config: { xKey: 'name', yKey: 'value', color: '#82ca9d' },
-          position: { x: 4, y: 0, width: 4, height: 3 }
-        },
-        {
-          id: 'viz-3',
-          type: 'pie',
-          title: 'Market Share',
-          data: [
-            { name: 'Product A', value: 45 },
-            { name: 'Product B', value: 30 },
-            { name: 'Product C', value: 15 },
-            { name: 'Product D', value: 10 }
-          ],
-          config: { nameKey: 'name', valueKey: 'value' },
-          position: { x: 8, y: 0, width: 4, height: 3 }
-        },
-        {
-          id: 'viz-4',
-          type: 'card',
-          title: 'Total Revenue',
-          data: { value: '$2.5M', trend: 12.5, comparison: 'vs last quarter' },
-          config: {},
-          position: { x: 0, y: 3, width: 3, height: 2 }
-        }
-      ]);
+      setVisualizations(getDefaultVisualizations());
     }
-  }, [selectedTemplate]);
+  }, [selectedTemplate, reportId]);
+
+  const generateReportVisualizations = (id: string, name: string) => {
+    // Use report id to seed different data
+    const seed = id.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    const categories = [
+      ['Electronics', 'Clothing', 'Home', 'Sports', 'Books'],
+      ['Marketing', 'Sales', 'Engineering', 'Support', 'HR'],
+      ['North', 'South', 'East', 'West', 'Central'],
+      ['Q1', 'Q2', 'Q3', 'Q4'],
+      ['Website', 'Mobile', 'Social', 'Email', 'Direct']
+    ];
+    const catSet = categories[seed % categories.length];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'];
+
+    return [
+      {
+        id: `viz-${id}-1`,
+        type: 'bar',
+        title: `${name} - Category Analysis`,
+        data: catSet.map(c => ({ name: c, value: 10000 + ((seed * c.charCodeAt(0)) % 50000) })),
+        config: { xKey: 'name', yKey: 'value', color: COLORS[seed % COLORS.length] },
+        position: { x: 0, y: 0, width: 6, height: 3 }
+      },
+      {
+        id: `viz-${id}-2`,
+        type: 'line',
+        title: `${name} - Monthly Trend`,
+        data: months.map((m, i) => ({ name: m, value: 5000 + ((seed * (i + 1) * 137) % 30000) })),
+        config: { xKey: 'name', yKey: 'value', color: COLORS[(seed + 1) % COLORS.length] },
+        position: { x: 6, y: 0, width: 6, height: 3 }
+      },
+      {
+        id: `viz-${id}-3`,
+        type: 'pie',
+        title: `${name} - Distribution`,
+        data: catSet.slice(0, 4).map((c, i) => ({ name: c, value: 10 + ((seed * (i + 3) * 71) % 40) })),
+        config: { nameKey: 'name', valueKey: 'value' },
+        position: { x: 0, y: 3, width: 4, height: 3 }
+      },
+      {
+        id: `viz-${id}-4`,
+        type: 'card',
+        title: `${name} - KPI`,
+        data: { value: `$${((seed * 7) % 90 + 10) / 10}M`, trend: ((seed * 3) % 25) - 5, comparison: 'vs last period' },
+        config: {},
+        position: { x: 4, y: 3, width: 4, height: 2 }
+      },
+      {
+        id: `viz-${id}-5`,
+        type: 'card',
+        title: 'Growth Rate',
+        data: { value: `${((seed * 11) % 30) + 5}%`, trend: ((seed * 2) % 15), comparison: 'vs previous' },
+        config: {},
+        position: { x: 8, y: 3, width: 4, height: 2 }
+      }
+    ];
+  };
+
+  const getDefaultVisualizations = () => [
+    {
+      id: 'viz-1', type: 'bar', title: 'Sales by Category',
+      data: [
+        { name: 'Electronics', value: 40000 }, { name: 'Clothing', value: 30000 },
+        { name: 'Home', value: 50000 }, { name: 'Sports', value: 25000 }
+      ],
+      config: { xKey: 'name', yKey: 'value', color: '#8884d8' },
+      position: { x: 0, y: 0, width: 4, height: 3 }
+    },
+    {
+      id: 'viz-2', type: 'line', title: 'Monthly Trend',
+      data: [
+        { name: 'Jan', value: 12000 }, { name: 'Feb', value: 15000 },
+        { name: 'Mar', value: 18000 }, { name: 'Apr', value: 22000 },
+        { name: 'May', value: 25000 }, { name: 'Jun', value: 28000 }
+      ],
+      config: { xKey: 'name', yKey: 'value', color: '#82ca9d' },
+      position: { x: 4, y: 0, width: 4, height: 3 }
+    },
+    {
+      id: 'viz-3', type: 'pie', title: 'Market Share',
+      data: [
+        { name: 'Product A', value: 45 }, { name: 'Product B', value: 30 },
+        { name: 'Product C', value: 15 }, { name: 'Product D', value: 10 }
+      ],
+      config: { nameKey: 'name', valueKey: 'value' },
+      position: { x: 8, y: 0, width: 4, height: 3 }
+    },
+    {
+      id: 'viz-4', type: 'card', title: 'Total Revenue',
+      data: { value: '$2.5M', trend: 12.5, comparison: 'vs last quarter' },
+      config: {},
+      position: { x: 0, y: 3, width: 3, height: 2 }
+    }
+  ];
 
   const handleVisualizationUpdate = (id: string, updates: any) => {
     setVisualizations(prev => 
