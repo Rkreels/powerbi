@@ -610,7 +610,7 @@ const ReportEditor = () => {
         )}
 
         {/* Main Canvas */}
-        <EnhancedReportCanvas selectedTemplate={selectedTemplate} />
+        <EnhancedReportCanvas selectedTemplate={selectedTemplate} reportId={reportId} reportName={reportName} />
       </div>
     </div>
   );

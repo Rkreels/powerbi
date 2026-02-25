@@ -186,12 +186,12 @@ const EnhancedPowerBITopBar = () => {
           <Button 
             variant="ghost"
             className="flex items-center text-sm text-gray-700 hover:text-blue-600 font-medium p-2"
-            onClick={() => window.open('https://skillsim.vercel.app/dashboard', '_self')}
+            onClick={() => window.location.href = 'https://careertodo.com/practice-lab'}
           >
             <div className="w-6 h-6 bg-yellow-500 rounded-sm flex items-center justify-center mr-2">
               <Zap size={14} className="text-white" />
             </div>
-            <span>Master Dashboard</span>
+            <span>Lab Dashboard</span>
           </Button>
           
           <div className="w-px h-6 bg-gray-300" />
